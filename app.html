@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Anyfile Notepad</title>
+  
+  <meta charset="UTF-8">
+
+  <link rel="stylesheet" type="text/css" href="/assets/application-31e4489fcd5f5e2795d73ba46ab9a3f9a3c9285e.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/jqueryFileTree/jqueryFileTree.css" media="all">
+
+  <script type="text/javascript" src="/assets/application-31e4489fcd5f5e2795d73ba46ab9a3f9a3c9285e.js"></script>
+  <script type="text/javascript" src="/jqueryFileTree/jqueryFileTree.js"></script>
+  <script type="text/javascript" src="/ace.js/ace.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.cookie/1.4.0/jquery.cookie.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dropbox.js/0.10.2/dropbox.min.js"></script>
+  <script type="text/javascript" src="https://inverse.ca/downloads/Fingerbank/fingerbank-client.js"></script>
+
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  if(getCookie("AFNVersion") == "dev"){
+    ga('create', 'UA-54419365-1', 'auto');
+  }
+  else {
+    ga('create', 'UA-69003440-1', 'auto');
+  }
+  ga('send', 'pageview');
+
+</script>
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+</head>
+<body>
+
+  <div id="editor_app">
+  
+<script class="template-partial" data-partial-name="modal" type="text/x-handlebars-template">
+  <div class="modal fade" id={{#if id}} "{{ id }}" {{ else }} "modal" {{/if}} tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">{{ i18n title }}</h4>
+        </div>
+        <div class="modal-body" id={{#if id}} "{{ id }}_body" {{else}} "modal_body" {{/if}}>
+          {{#if with_bar}}
+            {{> loading_bar }}
+          {{/if}}
+          {{ i18n message }}
+          <div class="additionnal_message" ></div>
+        </div>
+        <div class="modal-footer">
+        {{#if button_id}}
+          <button id="{{button_id}}" type="button" class="{{button_id}} btn btn-primary">{{ i18n button_text }}</button>
+        {{/if}}
+        {{#if dismiss}}
+          <button type="button" class="btn btn-primary" data-dismiss="modal">{{ i18n "Close" }}</button>
+        {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+
+<script class="template-partial" data-partial-name="terms" type="text/x-handlebars">
+<div class="modal fade" id="terms_modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Welcome to Anyfile Notepad</h3>
+      </div>
+
+      <div class="modal-body" style="text-align:justify">
+      <h4>Please take the time to read what this app does so you're not disapointed!</h4>
+
+      <h4>FIRST : This is a simple plain text editor. Don't expect too much of it.</h4>
+      <p>This app will technically open all files but they won't be readable by a human if they weren't initially meant to be. More precisly this means that opening a WORD document, PDF, image, video, etc, won't display it as you expect it. It will show you gibberish that you can't understand since it's outputing the RAW binary content of the file.</p>
+      <p>Now you're wondering why you can open this file with this app. This is because this app is mainly made for developers that use Google Drive. No app allowed to open any type of file so this app covers it. The weird type of files that a developer can encounter can now be opened.</p>
+      <p>If you were trying to open an unsupported document, then I'm sorry I'm causing you disapointment. If you're trying to open a WORD or Pages document I'm sure you will find a more suitable app that does the job.</p>
+      <p>
+        Now to uninstall the app or for any other question, start by visiting the FAQ by 
+        <a href="/faq">clicking here</a>.
+        It contains answers to most of your questions. If you have any other question feel free to write on our Google+ community by 
+        <a href="https://plus.google.com/communities/109168786116242892967">clicking here</a>.
+      </p>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="disagree_terms">Not for me ! Get me out of here</button>
+        <button type="button" class="btn btn-primary" id="agree_terms">Understood! Let's go</button>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+
+
+<script class="template-partial" data-partial-name="mhelp" type="text/x-handlebars">
+<ul class="menu_list">
+  <li><a href="/">{{ i18n "App home page" }}</a></li>
+
+  <li><a href="{{noaction}}" {{{ m-action-n-close "new Popup({title : 'Keyboard shortcuts', hb_partial : '#keyboard-shortcuts'})" }}}>{{ i18n "Keyboard shortcuts" }}</a></li>
+
+  <li><a href="/faq" >{{ i18n "Frequently asked questions (FAQ)" }}</a></li>
+  
+  <li><a href="http://bit.ly/afn-community">{{ i18n "Google+ Community" }}</a></li>
+
+  <li><a href="{{noaction}}" {{{ m-action-n-close "new Popup({title : 'About this app', hb_partial : '#about'})" }}}>{{ i18n "About" }}</a></li>
+</ul>
+</script>
+
+
+<script class="template-partial" data-partial-name="mfile-open" type="text/x-handlebars">
+<div id="file_explorer_container">
+  <div class="file_explorer panel panel-default ">
+    <div class="panel-body" id="file_tree_panel" >
+    <p class="flash_error" id="loading_error" style="display:none;">Your files couldn't load.<br/><a id="reauth_file_tree" href="#">Click here to reauthenticate.</a></p>
+    <div id="fileTree" class="demo"></div>
+    </div>
+  </div>
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="file_info" type="text/x-handlebars-template">
+  <div class="modal fade" id="file_info_modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">File info</h4>
+        </div>
+        <div class="modal-body">
+          <p><b>{{ i18n "File provider" }} : </b><span data-bind-file="provider"></span></p>
+          <p><b>{{ i18n "File name" }} : </b><span data-bind-file="title"></span></p>
+          <p><b>{{ i18n "File id" }} : </b><span data-bind-file="id"></span></p>
+          <p><b>{{ i18n "Folder id" }} : </b><span data-bind-file="folder_id"></span></p>
+          <p><b>{{ i18n "Mime type" }} : </b><span data-bind-file="mime_type"></span></p>
+          <p><b>{{ i18n "Your device" }} : </b><span id="current_device"></span></p>
+        </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">{{ i18n "Close" }}</button>
+          </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+
+<script class="template-partial" data-partial-name="mfile-select-syntax" type="text/x-handlebars">
+<div class="syntaxes">
+  <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+  <ul class="menu_list">
+    {{#each grouped_syntaxes}}
+        <li>
+        <a href="{{noaction}};" class="sub_menu_item" >{{@key}}</a>
+        <div class="menu_content">
+          <div class="syntaxes">
+            <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+             <ul class="menu_list">
+                {{#each this}}
+                  <li>
+                    <a href="{{noaction}};" class="syntax_button syntax_{{this.ace_js_mode}}" {{{ m-action-n-close (concat "editor_controller.set_syntax_mode('" this.ace_js_mode "',true)") }}}>
+                      {{this.display_name}}
+                    </a>                  
+                  </li>
+                {{/each}}
+            </ul>
+          </div>
+         
+        </div>
+      </li>
+    {{/each}}
+  </ul>
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions" type="text/x-handlebars">
+<div class="options">
+  {{> moptions-basic-options }}
+
+  <div class="row">
+    <div class="col-md-6">
+      <a class="big_options_btn sub_menu_item btn btn-primary" href="{{noaction}}">Accounts</a>
+      <div class="menu_content">
+        {{> moptions-accounts }}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <a class="menu-options-advanced big_options_btn sub_menu_item btn btn-primary" href="{{noaction}}">Advanced</a>
+      <div class="menu_content">
+        <a href="{{noaction}}" class="menu_back themes_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+        <ul class="menu_list back_btn_padded">
+          <li>
+            <a href="{{noaction}}" class="sub_menu_item" target="_blank">{{ i18n "Select theme" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+            <div class="menu_content">
+              {{> moptions-advanced-select-theme }}
+            </div>
+          </li>
+
+          <li>
+            <a href="{{noaction}}" class="sub_menu_item" target="_blank">Select language<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+            <div class="menu_content">
+              {{> moptions-advanced-select-language }}
+            </div>
+          </li>
+
+          <li>
+            <a 
+              href="{{noaction}};" 
+              {{{ 
+                m-action-n-close (concat
+                  "user_preferences.reset();"
+                  "new Popup({ message : i18n('You should now restart the app to fully flush your preferences.'), callback : function(result) {if(result) editor_controller.restart_app()}, confirm : true, confirm_btn : i18n('Restart now'), cancel_btn : i18n('Restart later')});")
+              }}} 
+            >
+              {{ i18n "Reset preferences" }}
+            </a>
+          </li>
+
+
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="mfile" type="text/x-handlebars">
+<ul class="menu_list file_menu">
+  <li>
+    <a href="{{noaction}}" class="sub_menu_item" target="_blank">{{ i18n "New" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+      <ul class="menu_list">
+        <li><a href="#new/GoogleDrive" {{{ m-action-n-close }}}>Google Drive</a></li>
+        <li><a href="#new/Dropbox" {{{ m-action-n-close }}}>Dropbox</a></li>
+      </ul>
+    </div>
+  </li>
+  
+  <li>
+    <a href="{{noaction}}" class="menu-file-open sub_menu_item" target="_blank">{{ i18n "Open" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+      {{> mfile-open }}
+    </div>
+  </li>
+
+  <li>
+    <a href="{{noaction}}" class="menu-file-favorites sub_menu_item" target="_blank">{{ i18n "Favorites" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+      <ul class="menu_list favorites"></ul>
+    </div>
+  </li>
+
+  <li>
+    <a href="{{noaction}}" class="sub_menu_item" target="_blank">{{ i18n "Select syntax" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      {{> mfile-select-syntax }}
+    </div>
+  </li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.save()" }}} >{{ i18n "Save" }}</a></li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.open_share_modal()" }}}>{{ i18n "Share" }}</a></li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.print()" }}}>{{ i18n "Print" }}</a></li>
+  
+  <li>
+    <a href="{{noaction}};" {{{ m-action-n-close "editor_controller.open_search()" }}}>{{ i18n "Search" }} (Ctrl-F)</a>
+  </li>
+  
+  <li>
+    <a href="{{noaction}};" {{{ m-action-n-close "editor_controller.open_replace()" }}}>
+      {{ i18n "Search & replace" }}
+    </a>
+  </li>
+  
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.show_file_info()" }}}>{{ i18n "Show file info" }}</a></li>
+
+  <li><a href="/faq">{{ i18n "Help (FAQ)" }}</a></li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.restart_app()" }}}>{{ i18n "Restart app" }}</a></li>
+</ul>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-advanced-select-language" type="text/x-handlebars">
+<ul class="menu_list back_btn_padded">
+  <div class="text-center"><a href="javascript:void(0)" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a></div>
+  <li><a href="javascript:void(0)" onclick="javascript:editor_controller.select_locale('auto')" data-locale="auto">Auto detected</a></li>
+  {{#each locales}}
+  <li><a href="javascript:void(0)" onclick="javascript:editor_controller.select_locale('{{@key}}')">{{this}}</a></li>
+  {{/each}}
+</ul>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-advanced-select-theme" type="text/x-handlebars">
+<div class="row themes">
+<a href="{{noaction}}" class="menu_back themes_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+  {{#each themes}}
+    {{#if (eq (math @index "%" 12) 0) }}
+    <div class="col-md-4 theme-col-{{ math @index "/" 12 }}">
+      <div class="theme_choice_column btn-group-vertical"> 
+    {{/if}}
+      {{#if (eq this "dummy")}}
+        <a href="{{noaction}};" class="btn-dummy">{{this.theme_display_name}}</a>
+      {{else}}
+        <a href="{{noaction}};" class="btn btn-default btn_theme theme_{{this.theme_name}}"{{{ m-action-n-close (concat "editor_controller.select_theme('" this.theme_name "')") }}}>{{this.theme_display_name}}</a>
+      {{/if}}
+    {{#if (eq @index (math ../themes.length "-" 1 ))}}
+        </div>
+      </div>
+    {{else}}
+      {{#if (eq (math @index "%" 12) 11) }}
+        </div>
+      </div>
+      {{/if}}
+    {{/if}}
+  {{/each}}
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-basic-options" type="text/x-handlebars">
+<div class="row">
+  <div class="col-md-3">
+    {{ i18n "Editor mode" }} :
+    <select class="keybinding_select form-control">
+      <option value="normal">{{ i18n "Normal" }}</option>
+      <option value="vim">{{ i18n "vim" }}</option>
+      <option value="emacs">{{ i18n "Emacs" }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    {{ i18n "Tab size" }} : 
+    <select class="tab_size_select form-control">
+      <option value="2">{{ i18n "2" }}</option>
+      <option value="3">{{ i18n "3" }}</option>
+      <option value="4">{{ i18n "4" }}</option>
+      <option value="5">{{ i18n "5" }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    {{ i18n "Font size" }} :
+    <select class="font_size_select form-control">
+      <option value="0.5em">{{ i18n "Small" }}</option>
+      <option value="1em">{{ i18n "Normal" }}</option>
+      <option value="1.5em">{{ i18n "Large" }}</option>
+      <option value="2em">{{ i18n "X-large" }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    <div class="togglebutton">
+      <label>
+        {{ i18n "Word wrapping" }} : <input type="checkbox" class="word_wrap_checkbox">
+      </label>
+    </div>
+  </div>
+
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-accounts" type="text/x-handlebars">
+<a href="javascript:void(0)" class="menu_back themes_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+<ul class="menu_list back_btn_padded">
+  <li>
+    <h5 class="menu_header">Google Drive</h5>
+  </li>
+  <li>
+    <a href="{{noaction}}" {{{ m-action-n-close "window.open('https://accounts.google.com/AddSession','1461625036769','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0')" }}}>{{ i18n "Add account" }}</a>
+  </li>
+  <li>
+    <a href="{{noaction}}" {{{ m-action-n-close "oauth_controller.switch_user()" }}}>{{ i18n "Switch account" }}</a>
+  </li>
+  <li>
+    <h5 class="menu_header">Dropbox</h5>
+  </li>
+  <li>
+    <a href="{{noaction}}" {{{ m-action-n-close "dropbox_oauth_controller.test(function(){new Popup({message : i18n('Already connected !')})})" }}}>{{ i18n "Connect account" }}</a>
+  </li>
+</ul>
+</script>
+
+
+<script id="keyboard-shortcuts" class="template-partial" type="text/x-handlebars-template">
+<div style="max-height:400px;overflow-y:scroll">
+  <h5>
+    {{ i18n "This outlines the main shortcuts, for the complete list see:" }}
+    <a target="_blank" href="https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts">https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts</a>
+  </h5>
+
+  <h4>{{ i18n "Moving around" }}</h4>
+  <table class="table">
+    <th>Windows/Linux</th>
+    <th>Mac OS</th>
+    <th>{{ i18n "Action" }}</th>
+
+    <tr>
+    <td align="left">Left</td>
+    <td align="left">Left, Ctrl-B</td>
+    <td align="left">{{ i18n "Go to left" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Right</td>
+    <td align="left">Right, Ctrl-F</td>
+    <td align="left">{{ i18n "Go to right" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Left</td>
+    <td align="left">Option-Left</td>
+    <td align="left">{{ i18n "Go to word left" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Right</td>
+    <td align="left">Option-Right</td>
+    <td align="left">{{ i18n "Go to word right" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Up</td>
+    <td align="left">Up, Ctrl-P</td>
+    <td align="left">{{ i18n "Go line up" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Down</td>
+    <td align="left">Down, Ctrl-N</td>
+    <td align="left">{{ i18n "Go line down" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Alt-Left, Home</td>
+    <td align="left">Command-Left, Home, Ctrl-A</td>
+    <td align="left">{{ i18n "Go to line start" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Alt-Right, End</td>
+    <td align="left">Command-Right, End, Ctrl-E</td>
+    <td align="left">{{ i18n "Go to line end" }}</td>
+    </tr>
+    <tr>
+    <td align="left">PageUp</td>
+    <td align="left">Option-PageUp</td>
+    <td align="left">{{ i18n "Go to page up" }}</td>
+    </tr>
+    <tr>
+    <td align="left">PageDown</td>
+    <td align="left">Option-PageDown, Ctrl-V</td>
+    <td align="left">{{ i18n "Go to page down" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Home</td>
+    <td align="left">Command-Home, Command-Up</td>
+    <td align="left">{{ i18n "Go to start" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-End</td>
+    <td align="left">Command-End, Command-Down</td>
+    <td align="left">{{ i18n "Go to end" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-L</td>
+    <td align="left">Command-L</td>
+    <td align="left">{{ i18n "Go to line" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Down</td>
+    <td align="left">Command-Down</td>
+    <td align="left">{{ i18n "Scroll line down" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Up</td>
+    <td align="left">---</td>
+    <td align="left">{{ i18n "Scroll line up" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-P</td>
+    <td align="left">---</td>
+    <td align="left">{{ i18n "Go to matching bracket" }}</td>
+    </tr>
+    <tr>
+    <td align="left">---</td>
+    <td align="left">Option-PageDown</td>
+    <td align="left">{{ i18n "Scroll page down" }}</td>
+    </tr>
+    <tr>
+    <td align="left">---</td>
+    <td align="left">Option-PageUp</td>
+    <td align="left">{{ i18n "Scroll page up" }}</td>
+    </tr>
+  </table>
+
+  <h4>{{ i18n "Selection" }}</h4>
+  <table class="table">
+    <th>Windows/Linux</th>
+    <th>Mac OS</th>
+    <th>Action</th>
+
+    <tr>
+    <td align="left">Ctrl-A</td>
+    <td align="left">Command-A</td>
+    <td align="left">{{ i18n "Select all" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Shift-Left</td>
+    <td align="left">Shift-Left</td>
+    <td align="left">{{ i18n "Select left" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Shift-Right</td>
+    <td align="left">Shift-Right</td>
+    <td align="left">{{ i18n "Select right" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Shift-Left</td>
+    <td align="left">Option-Shift-Left</td>
+    <td align="left">{{ i18n "Select word left" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Shift-Right</td>
+    <td align="left">Option-Shift-Right</td>
+    <td align="left">{{ i18n "Select word right" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Shift-Home</td>
+    <td align="left">Shift-Home</td>
+    <td align="left">{{ i18n "Select line start" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Shift-End</td>
+    <td align="left">Shift-End</td>
+    <td align="left">{{ i18n "Select line end" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Alt-Shift-Right</td>
+    <td align="left">Command-Shift-Right</td>
+    <td align="left">{{ i18n "Select to line end" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Alt-Shift-Left</td>
+    <td align="left">Command-Shift-Left</td>
+    <td align="left">{{ i18n "Select to line start" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Shift-Up</td>
+    <td align="left">Shift-Up</td>
+    <td align="left">{{ i18n "Select up" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Shift-Down</td>
+    <td align="left">Shift-Down</td>
+    <td align="left">{{ i18n "Select down" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Shift-PageUp</td>
+    <td align="left">Shift-PageUp</td>
+    <td align="left">{{ i18n "Select page up" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Shift-PageDown</td>
+    <td align="left">Shift-PageDown</td>
+    <td align="left">{{ i18n "Select page down" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Shift-Home</td>
+    <td align="left">Command-Shift-Up</td>
+    <td align="left">{{ i18n "Select to start" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Shift-End</td>
+    <td align="left">Command-Shift-Down</td>
+    <td align="left">{{ i18n "Select to end" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Shift-D</td>
+    <td align="left">Command-Shift-D</td>
+    <td align="left">{{ i18n "Duplicate selection" }}</td>
+    </tr>
+    <tr>
+    <td align="left">Ctrl-Shift-P</td>
+    <td align="left">---</td>
+    <td align="left">{{ i18n "Select to matching bracket" }}</td>
+    </tr>
+
+
+  </table>
+</div>
+</script>
+
+
+
+<script id="about" class="template-partial" type="text/x-handlebars-template">
+  <p><b>{{ i18n "Version" }} : </b>v5.1.2</p>
+  <p><b>{{ i18n "Build ID" }} : </b>9fd4e3</p>
+  {{#if global_context.application.dev_mode}}
+  <p><b>Running development snapshot</b> <a href="javascript:void(0)" onclick="javascript:application.stop_dev_mode()">use stable version</a></p>
+  {{else}}
+  <p><b>Running stable snapshot</b> <a href="javascript:void(0)" onclick="javascript:application.try_dev_mode()">use development version (if available)</a></p>
+  {{/if}}
+</script>
+
+
+<script class="template-partial" data-partial-name="major_notice_modal" type="text/x-handlebars">
+<div class="modal fade" id="major_notice_modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="false" data-version="3">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h4>This version introduces changes to the menus.</h4>
+        <div class="mobile-show">
+          <h5>Overview of the changes:</h5>
+          <ul>
+            <li>The Open menu and the favorites have been moved to the File menu.</li>
+            <li>The syntax selection is now in the File menu</li>
+            <li>There is a new Accounts sub menu in the Options to manage the Google and Dropbox accounts.</li>
+            <li>There is a new Advanced sub menu in the Options to manage the language and theme used by the app</li>
+          </li>
+        </div>
+        <div class="non-mobile-show">
+          <h4>We suggest you take a quick tour to visualize the changes</h4>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="non-mobile-show">
+          <button type="button" class="btn btn-primary agree_major_notice">Skip the tour</button>
+          <button type="button" onclick="javascript:application.tour_controller.menu_change_tour()" class="btn btn-primary agree_major_notice">OK! Let's go</button>
+        </div>
+        <div class="mobile-show">
+          <button type="button" class="btn btn-primary agree_major_notice">OK! Let's go</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+
+
+<script class="template-partial" data-partial-name="editor_flash" type="text/x-handlebars">
+<a href="javascript:void(0)" id="show_full_flash" class="btn btn-primary btn-fab btn-raised mdi-social-notifications" onclick="javascript:editor_controller.flash.toggle_maximize()"></a>
+
+<div class="flash" id="editor_flash" >
+</div>
+</script>
+
+
+<script id="popup-template" class="template-partial" type="text/x-handlebars-template">
+<div class="modal fade" id="{{ popup_id }}" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">{{ title }}</h4>
+        </div>
+        <div class="modal-body">
+          {{#if content}}
+          {{{ content }}}
+          {{else}}
+          {{ message }}
+          {{/if}}
+        </div>
+        <div class="modal-footer">
+          {{#if confirm}}
+            <button id="{{ cancel_id }}" type="button" class="btn btn-primary">{{ cancel_btn }}</button>
+          {{/if}}
+          <button id="{{ confirm_id }}" type="button" class="btn btn-primary">{{ confirm_btn }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
+
+<script class="template-partial" data-partial-name="loading_bar" type="text/x-handlebars">
+<div class="progress progress-striped active">
+  <div class="progress-bar" id="progress_bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%;"></div>
+</div>
+</script>
+
+
+  <div id="loading_overlay"></div>
+
+  <script class="template" type="text/x-handlebars">
+    {{> modal id="app_load_modal" title="Starting up application" message="Hang tight..." with_bar=true }}
+    {{> modal id="app_restart_modal" title="Restarting" message="The app is being restarted, please wait." with_bar=true }}
+    {{> modal id="file_load_modal" title="Your file is being loaded" message="Depending on the file size, this can be long." with_bar=true }}
+    {{> modal id="auth_failed_modal" title="The authentication failed with Google" message="You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests." button_id="restart_app" button_text="Restart app" }}
+    {{> modal id="error_modal" title="An unexpected error occured with the provider server" message="The app flow will still continue but unexpected behavior may occur. When in doubt restart the app." dismiss=true }}
+    {{> modal id="auth_modal" title="You need to authorize this app to access your Google Drive" message="Without this the app is useless to you." button_id="start_g_oauth" button_text="Authorize!" }}
+    {{> modal id="user_auth_modal" title="Switch user" message="In order to open this file, you need to switch user." button_id="switch_user" button_text="Switch user" }}
+
+    {{> file_info }}
+    {{> major_notice_modal }}
+    {{> terms }}
+    {{> editor_flash }}
+  </script>
+
+  <div id="print_content" style="display:none">
+  <link rel="stylesheet" type="text/css" href="/assets/application-31e4489fcd5f5e2795d73ba46ab9a3f9a3c9285e.css" media="all">
+
+  <div class="print_menu print_hide">
+    <a id="print" href="#print" class="btn btn-primary">Print</a>
+    <label for="line_numbers_checkbox">Line numbers : </label>
+    <input id="line_numbers_checkbox" type="checkbox" value="checked">
+
+  </div>
+  <pre class="with_line_numbers hide"></pre>
+  <pre class="without_line_numbers"></pre>
+
+  <script>
+    $('#print').click(function(){
+      window.print()
+    });
+
+    var line_numbers_on = false;
+    $('#line_numbers_checkbox').change( function(){
+      line_numbers_on = !line_numbers_on;
+      if(line_numbers_on) {
+        $('.without_line_numbers').addClass('hide')
+        $('.with_line_numbers').removeClass('hide')
+      }
+      else { 
+        $('.without_line_numbers').removeClass('hide')
+        $('.with_line_numbers').addClass('hide')
+      }
+    });
+  </script>
+</div>
+
+
+
+
+  <script id="editor-template" class="template" type="text/x-handlebars-template">
+    <div id="editor_menu_container" >
+      <div id="editor_menu" class="g_file_menu" >
+
+        <div class="navbar navbar-default" id="menu">
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle" onclick="javascript:top_menu_controller.toggle_mobile_menu()">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="/"><img src="logo.png" width="50" height=="50"><div class="ripple-wrapper"><div class="ripple ripple-on" style="left: 63.5px; top: 23px; -webkit-transform: scale(9.625); transform: scale(9.625); background-color: rgba(255, 255, 255, 0.843137);"></div></div></a>
+  </div>
+  <div class="extended_menu">
+    <ul class="nav navbar-nav">
+      <!-- FILE/* -->
+      <li>
+        <a href="javascript:void(0)" id="file_menu_btn" class="menu_item">{{ i18n "File" }}</a>
+        <div class="menu_content">
+          {{> mfile }}
+        </div>
+      </li>
+      <!-- */FILE -->
+
+      <!-- OPTIONS/* -->
+      <li>
+        <a href="javascript:void(0)" id="options_menu_btn" class="menu_item" >{{ i18n "Options" }}</a>
+        <div class="menu_content" data-show-callback="editor_controller.options_show_callback()">
+          {{> moptions }}
+        </div>
+      </li>
+      <!-- */OPTIONS -->
+      
+      <!-- HELP/* -->
+      <li>
+        <a href="javascript:void(0)" id="help_menu_btn" class="menu_item" >{{ i18n "Help" }}</a>
+        <div class="menu_content">
+          {{> mhelp }}
+        </div>
+      </li>
+      <!-- */HELP -->
+
+    </ul>
+    <form id="file_title_form" class="navbar-form navbar-left" onsubmit="javascript:editor_controller.save();return false;">
+      <input type="text" data-bind-file="title" class="form-control col-lg-8" placeholder="{{ i18n "Filename" }}">
+      <a href="javascript:void(0);" class="editor_save_button" >{{ i18n "Save" }}</a>
+    </form>
+    <span class="collaborators"></span>
+  </div>
+  <div id="expanded_menu">
+  </div>
+</div>
+
+
+
+
+      </div>
+
+    </div>
+
+    <div class="g_file_editor">
+      <div id="editor" class="page-content" contenteditable="true"></div>
+    </div>
+        
+    
+<div id="current_user" class="alert alert-success">
+  <div style="display:inline-block">
+  <span id="user_details" style="display:none;">
+      {{ i18n "Logged in as" }}
+      <span data-bind-current_user="name"></span>
+      <br>
+      <a style="color:blue" href="javascript:void(0)" onclick="javascript:oauth_controller.switch_user()">{{ i18n "Switch user" }}</a>
+      |
+      <a style="color:blue" href="https://accounts.google.com/AddSession" onclick="javascript:void window.open('https://accounts.google.com/AddSession','1461625036769','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0');return false;">{{ i18n "Add account" }}</a>
+  </span>
+  </div>
+  <img data-bind-current_user="picture_url" style="float:right;margin:3px;width:35px;height:35px;" src="">
+</div>
+
+
+
+
+  </script>
+</div>
+
+
+<script type="text/javascript">
+  var application = new ApplicationController();
+
+  var locales = {
+    "nl"    : "Dutch",
+    "en"    : "English",
+    "fr"    : "French",
+    "de"    : "German",
+    "it"    : "Italian",
+    "ja"    : "Japanese",
+    "pl"    : "Polish",
+    "pt-BR" : "Portuguese (BR)",
+    "es"    : "Spanish",
+    "ro"    : "Romanian",
+    "tr"    : "Turkish",
+  }
+  var locales_definition = {
+    "nl"    : {
+ "": "",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "A favorite with the same file ID already exists": "Een favoriet met hetzelfde bestands ID bestaat al",
+  "A favorite with this name already exists.": "Een favoriet met dezelfde bestandsnaam bestaat al",
+  "An unexpected error occured with Google's server": "Een onverwachte fout trad op met Google's server",
+  "App home page": "App home pagina",
+  "Are you sure ?": "Weet u het zeker?",
+  "Authorize!": "Machtigen!",
+  "Can't favorite file as it is not saved yet...": "Kan geen favoriet maken van bestand omdat het nog niet is bewaard...",
+  "Close": "Sluit",
+  "Couldn't detect which browser you are using. The app should work but your milleage may vary.": "Kon niet detecteren welke browser gebruikt wordt. De app zou moeten werken, maar is misschien niet stabiel",
+  "Creating new file": "Nieuw bestand creeren",
+  "Depending on the file size, this can be long.": "Dit kan lang duren afhankelijk van de bestandsgrootte",
+  "Device": "Apparaat",
+  "Editor mode": "Editor modus",
+  "Emacs": "Emacs",
+  "Enter an alias for this favorite": "Voer een alias in voor deze favoriet",
+  "Favorite this file": "Maak dit bestand favoriet",
+  "Favorites": "Favorieten",
+  "File": "Bestand",
+  "File loaded": "Bestand geladen",
+  "File name": "Bestands naam",
+  "File title can't be empty": "Bestands titel kan niet leeg zijn",
+  "Filename": "Bestandsnaam",
+  "Font size": "Lettertype grootte",
+  "Google Drive file id": "Google Drive bestands ID",
+  "Google Drive folder id": "Google Drive map ID",
+  "Large": "Groot",
+  "Mime type": "Mime type",
+  "New": "Nieuw",
+  "New file": "Nieuw bestand",
+  "Normal": "Normaal",
+  "Open": "Open",
+  "Options": "Opties",
+  "Press escape to cancel": "Druk op esc om af te breken",
+  "Print": "Afdrukken",
+  "Reset preferences": "Herstel voorkeuren",
+  "Restart app": "Herstart app",
+  "Save": "Bewaar",
+  "Saved": "Bewaard",
+  "Saving": "Bewaren",
+  "Search": "Zoek",
+  "Search & replace": "Zoek en vervang",
+  "Select language": "Selecteer Taal",
+  "Select syntax": "Selecteer syntaxis",
+  "Select theme": "Selecteer thema",
+  "Share": "Deel",
+  "Show file info": "Laat bestandsinfo zien",
+  "Skip": "Overslaan",
+  "Small": "Klein",
+  "Some of your preferences are still being saved. Press 'Don't reload' to wait for them to be saved.": "Sommige voorkeuren worden nog steeds bewaard. Klik op 'Don't reload' om te wachten tot ze zijn bewaard.",
+  "Tab size": "Tab grootte",
+  "The app flow will still continue but unexpected behavior may occur. When in doubt restart the app.": "De app werking zal blijven doorgaan, maar onverwacht gedrag kan optreden",
+  "The application is being loaded": "De app wordt geladen",
+  "The authentication failed with Google": "De authenticatie met Google is mislukt",
+  "The browser you are using is completely untested with this app. Consider using another browser.": "Deze browser is niet getest met deze app, overweeg een andere browser.",
+  "The browser you are using is not officialy tested. The app should work but your milleage may vary.": "Deze browser is niet officieel getest met deze app, De app zou moeten werken, maar is misschien niet stabiel.",
+  "This file has an unknown encoding.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Autosave has been temporarly disabled.": "Dit bestand heeft een onbekende codering.<br/>Sommige tekens kunnen corrupt zijn en het bestand kan gedeeltelijk codering verliezen als het bewaard wordt.<br/>Autosave is tijdelijk uitgeschakeld.",
+  "This file is already being saved. Calm down.": "Rustig, rustig. Dit bestand is al bewaard.",
+  "This should take a few seconds. You can skip this step if it is too long.": "Dit zou niet lang moeten duren. U mag deze stap overslaan als het te lang duurt.",
+  "Waiting for your preferences to be saved.": "Wachten op het bewaren van uw instellingen.",
+  "We got this message from Google": "We kregen deze boodschap van Google",
+  "Without this the app is useless to you.": "Zonder dit is de app waardeloos.",
+  "Word wrapping": "Automatische terugloop",
+  "X-large": "X-large",
+  "You have unsaved changes or your file is still being saved. You will lose your changes": "U heeft onbewaarde veranderingen of uw bestand wordt nog steeds bewaard. Uw verliest uw veranderingen.",
+  "You must save the file before you can share it.": "U moet het bestand bewaren voordat u het kan delen.",
+  "You need to authorize this app to access your Google Drive": "U moet de app machtigen zodat het Google drive kan gebruiken",
+  "You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests.": "U moet popups aanzetten in uw browser, log daarna in uw Google account en accepteer het machtigingsverzoeken van de app.",
+  "You should now restart the app to fully flush your preferences.": "U moet de app herstarten om de voorkeuren te verversen",
+  "Your file is being loaded": "Uw bestand wordt geladen",
+  "vim": "vim"
+}
+,
+    "en"    : {
+}
+,
+    "fr"    : {
+  "File" : "Fichier",
+  "Open" : "Ouvrir",
+  "Favorites" : "Favoris",
+  "Filename" : "Nom du fichier",
+  "Save" : "Sauvegarder",
+  "Saved" : "Sauvegardé",
+  "Saving" : "Sauvegarde en cours",
+  "Close" : "Fermer",
+  "": "",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "App home page": "Page d'accueil de l'app",
+  "Device": "Appareil",
+  "Editor mode": "Mode d'édition",
+  "Emacs": "Emacs",
+  "File name": "Nom du fichier",
+  "Font size": "Taille de police",
+  "Google Drive file id": "Identifiant du fichier Google Drive",
+  "Google Drive folder id": "Identifiant du dossie Google Drive",
+  "Large": "Large",
+  "Mime type": "Type MIME",
+  "New": "Nouveau",
+  "Normal": "Normal",
+  "Options": "Options",
+  "Print": "Imprimer",
+  "Reset preferences": "Réinitialiser préférences",
+  "Restart app": "Redémarrer l'app",
+  "Search": "Rechercher",
+  "Search & replace": "Rechercher & Remplacer",
+  "Select syntax": "Changer la syntaxe",
+  "Select theme": "Changer le thème",
+  "Share": "Partager",
+  "Show file info": "Informations du fichier",
+  "Small": "Petit",
+  "Tab size": "Taille de tabulation",
+  "Word wrapping": "Retour à la ligne",
+  "X-large": "X-large",
+  "You should now restart the app to fully flush your preferences.": "Vous devriez maintenant redémarrer l'app pour complètement vider vos préférences",
+  "vim": "vim",
+  "A favorite with the same file ID already exists": "Un favoris avec le même ID fichier existe déjà",
+  "A favorite with this name already exists.": "Un favoris avec le même nom existe déjà",
+  "An unexpected error occured with Google's server": "Une erreur est survenue sur le serveur Google",
+  "Are you sure ?": "Êtes-vous sûr",
+  "Authorize!": "Authoriser!",
+  "Can't favorite file as it is not saved yet...": "Impossible d'ajouter le fichier comme favoris puisqu'il n'est pas sauvegardé",
+  "Couldn't detect which browser you are using. The app should work but your milleage may vary.": "Impossible de détecter votre navigateur. L'application devrait fonctionner mais certaines fonctionnalités peuvent être brisées",
+  "Creating new file": "Création d'un nouveau fichier",
+  "Depending on the file size, this can be long.": "Dépendamment de la taille du fichier, ceci peut être long",
+  "Enter an alias for this favorite": "Entrez un alias pour ce favoris",
+  "Favorite this file": "Ajouter ce fichier en favoris",
+  "File loaded": "Fichier chargé",
+  "File title can't be empty": "Le nom du fichier ne peut être vide",
+  "Press escape to cancel": "Appuyez sur 'Escape' pour annuler",
+  "Skip": "Sauter",
+  "Some of your preferences are still being saved. Press 'Don't reload' to wait for them to be saved.": "Certaines de vos préférences sont en cours de sauvegarde. Appuyez sur 'Ne pas recharger' pour attendre leur sauvegarde.",
+  "The app flow will still continue but unexpected behavior may occur. When in doubt restart the app.": "L'application va continuer mais certains problèmes peuvent survenir. Dans le doute, redémarrez l'app.",
+  "The application is being loaded": "L'application est en cours de chargement",
+  "The authentication failed with Google": "L'authentification Google a échouée",
+  "The browser you are using is completely untested with this app. Consider using another browser.": "Le navigateur que vous utilisez n'est pas testé avec l'app. Considérez utiliser un autre navigateur.",
+  "The browser you are using is not officialy tested. The app should work but your milleage may vary.": "Le navigateur que vous utilisez n'est pas officiellement testé. L'app devrait fonctionner mais certains problèmes pourraient survenir.",
+  "This file has an unknown encoding to this app.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Until you change something your file is safe.": "Ce fichier contient un encodage inconnu.<br/>Certains caractères peuvent être corrompus et le fichier pourrait perdre certaines informations d'encodage s'il est modifié.<br/>Votre fichier est sauf tant que vous ne le modifiez pas.",
+  "This file is already being saved. Calm down.": "On se calme ! Votre fichier est déjà en cours de sauvegarde.",
+  "This should take a few seconds. You can skip this step if you're too impatient.": "Ceci ne devrait prendre que quelques secondes. Vous pouvez sauter cette étape.",
+  "Waiting for your preferences to be saved.": "En attente de la sauvegarde de vos préférences",
+  "We got this message from Google": "Nous avons eu ce message de Google",
+  "Without this the app is useless to you.": "Sans ceci, l'app vous est inutile",
+  "You have unsaved changes or your file is still being saved. You will lose your changes": "Vous avez des changements non sauvegardés ou votre fichier est en cours de sauvegarde. Vous allez perdre vos changements.",
+  "You must save the file before you can share it.": "Vous devez sauvegarder le fichier avant de le partager",
+  "You need to authorize this app to access your Google Drive": "Vous devez authoriser l'app pour qu'elle accède à votre Google Drive",
+  "You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests.": "Vous devez authoriser les popups dans votre navigateur, puis vous connecter à votre compte Google et accepter les requêtes d'authorisation de l'app.",
+  "Your file is being loaded": "Votre fichier est en cours de chargement.",
+  "New file": "Nouveau fichier",
+  "An unexpected error occured with the provider server": "Une erreur inattendue s'est produite avec le serveur",
+  "App info": "Information de l'application",
+  "Browser storage is inexistant. The app cannot work without it. Please use another browser or a update your current one.": "Le stockage du navigateur est inexistant. L'application ne peux fonctionner sans ceci. Veuillez utiliser un autre navigateur ou mettre à jour votre navigateur actuel.",
+  "Can't commit your preferences because they weren't loaded properly. It is advised to restart the app.": "Impossible de sauvegarder vos préférences puisqu'elles n'ont pas été chargées correctement. Il est suggéré de redémarrer l'application.",
+  "Cancel": "Annuler",
+  "Connect Dropbox": "Connecter Dropbox",
+  "Creating new file in : ": "Créer un nouveau fichier dans : ",
+  "File id": "ID du fichier",
+  "File provider": "Fournisseur du fichier",
+  "Folder id": "ID du dossier",
+  "Frequently asked questions (FAQ)": "Questions fréquentes (FAQ)",
+  "Hang tight...": "Un moment...",
+  "Help": "Aide",
+  "Help (FAQ)": "Aide (FAQ)",
+  "In order to open this file, you need to switch user.": "Pour ouvrir ce fichier, vous devez changer d'utilisateur",
+  "Keyboard shortcuts": "Raccourcis clavier",
+  "OK": "OK",
+  "Requires to restart the application to be effective. Proceed with restart ?": "Requiert de redémarrer l'application. Souhaitez-vous procéder ?",
+  "Restarting": "Redémarrage en cours",
+  "Select language": "Sélectionner un langage",
+  "Starting up application": "Démarrage de l'application",
+  "Switch user": "Changer d'utilisateur",
+  "The app is being restarted, please wait.": "L'application redémarre, veuillez patienter.",
+  "This file has an unknown encoding.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Autosave has been temporarly disabled.": "Ce fichier a un encodage inconnu.<br/>Certains caractères peuvent être corrompus et le fichier pourrait perdre son encodage s'il est sauvegardé.<br/>La sauvegarde automatique a été temporairement désactivée.",
+  "User was not changed. Remember you can add accounts via the 'Add Account' button so they are available in the app.": "Le changement d'utilisateur n'a pas été fait. Souvenez-vous que vous pouvez ajouter un compte via le bouton 'Ajouter un compte' pour qu'il soit disponible dans l'application.",
+  "We got this message from Dropbox": "Nous avons obtenu ce message de Dropbox",
+  "Your preferences could not be loaded. This is likely due to a Google server error. Please try restarting the app and file a bug if it persists.": "Vos préférences n'ont pas été chargées. Ceci est probablement dût à une erreur des serveurs Googe. Veuillez redémarrer l'application et soumettez le problème à la communauté si le problème persiste.",
+  "Action": "Action",
+  "Add account": "Ajouter un compte",
+  "Duplicate selection": "Dupliquer la sélection",
+  "Go line down": "Aller vers ligne bas",
+  "Go line up": "Aller vers ligne haut",
+  "Go to end": "Aller vers fin",
+  "Go to left": "Aller vers gauche",
+  "Go to line": "Aller à la ligne",
+  "Go to line end": "Fin de la ligne",
+  "Go to line start": "Début de la ligne",
+  "Go to matching bracket": "Aller à l'accolade correspondante",
+  "Go to page down": "Aller vers le bas de la page",
+  "Go to page up": "Aller vers le haut de la page",
+  "Go to right": "Aller à droite",
+  "Go to start": "Aller au début",
+  "Go to word left": "Aller au mot à gauche",
+  "Go to word right": "Aller au mot à droite",
+  "Logged in as": "Connecté en tant que",
+  "Moving around": "Se déplacer",
+  "Scroll line down": "Dérouler la ligne en bas",
+  "Scroll line up": "Dérouler la ligne en haut",
+  "Scroll page down": "Dérouler vers le bas",
+  "Scroll page up": "Dérouler vers le haut",
+  "Select all": "Sélectionner tout",
+  "Select down": "Sélectionner vers le bas",
+  "Select left": "Sélectionner vers la gauche",
+  "Select line end": "Sélectionner jusqu'à la fin de la ligne",
+  "Select line start": "Sélectionner jusqu'au début de la ligne",
+  "Select page down": "Sélectionner vers le bas de la page",
+  "Select page up": "Sélectionner vers le haut de la page",
+  "Select right": "Sélectionner vers la droite",
+  "Select to end": "Sélectionner jusqu'à la fin",
+  "Select to line end": "Sélectionner jusqu'à la fin de la ligne",
+  "Select to line start": "Sélectionner jusqu'au début de la ligne",
+  "Select to matching bracket": "Sélectionner jusqu'à l'accolade correspondante",
+  "Select to start": "Sélectionner jusqu'au début",
+  "Select up": "Sélectionner vers le haut",
+  "Select word left": "Sélectionner jusqu'au mot à gauche",
+  "Select word right": "Sélectionner jusqu'au mot à droite",
+  "Selection": "Sélection",
+  "This outlines the main shortcuts, for the complete list see:": "Ceci décrit les raccourcis principaux, pour la liste complète voir:"
+}
+,
+    "de"    : {
+  "": "",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "A favorite with the same file ID already exists": "Ein Favorit mit der gleichen Datei-ID ist bereits vorhanden",
+  "A favorite with this name already exists.": "Ein Favorit mit dem gleichen Namen existiert bereits",
+  "An unexpected error occured with Google's server": "Mit dem Google-Servern ist ein unerwarteter Fehler ausgetreten",
+  "App home page": "Startseite",
+  "Are you sure ?": "Bist du sicher?",
+  "Authorize!": "Autorisieren!",
+  "Can't favorite file as it is not saved yet...": "Diese Datei kann nicht als Favorit hinzugefügt werden, weil sie noch nicht gespeichert ist...",
+  "Close": "Schliessen",
+  "Couldn't detect which browser you are using. The app should work but your milleage may vary.": "Dein Browser konnte nicht erkannt werden. Die APP sollte funktionieren, aber die Leistung kann variieren.",
+  "Creating new file": "Neue Datei erstellen",
+  "Depending on the file size, this can be long.": "Basierend auf der Dateigröße kann es länger dauern.",
+  "Device": "Gerät",
+  "Editor mode": "Editor Modus",
+  "Emacs": "Emacs",
+  "Enter an alias for this favorite": "Gebe einen Alias für den Favoriten ein",
+  "Favorite this file": "Favorisiere diese Datei",
+  "Favorites": "Favoriten",
+  "File": "Datei",
+  "File loaded": "Datei geladen",
+  "File name": "Dateiname",
+  "File title can't be empty": "Du musst einen Titel eingeben",
+  "Filename": "Dateiname",
+  "Font size": "Schriftgröße",
+  "Google Drive file id": "Google Drive Datei Id",
+  "Google Drive folder id": "Google Drive Ordner Id",
+  "Large": "Groß",
+  "Mime type": "Mime-Type",
+  "New": "Neu",
+  "New file": "Neue Datei",
+  "Normal": "Normal",
+  "Open": "Öffnen",
+  "Options": "Optionen",
+  "Press escape to cancel": "Drücke Escape um abzubrechen",
+  "Print": "Drucken",
+  "Reset preferences": "Einstellungen zurücksetzen",
+  "Restart app": "APP neustarten",
+  "Save": "Speichern",
+  "Saved": "Gespeichert",
+  "Saving": "Speichere",
+  "Search": "Suchen",
+  "Search & replace": "Suchen & Ersetzen",
+  "Select syntax": "Syntax auswählen",
+  "Select theme": "Skin auswählen",
+  "Share": "Teilen",
+  "Show file info": "Datei Infos anzeigen",
+  "Skip": "Überspringen",
+  "Small": "Klein",
+  "Some of your preferences are still being saved. Press 'Don't reload' to wait for them to be saved.": "Einige Ihrer Einstellungen werden immer noch gespeichert. Drücken Sie 'Nicht neuladen' um zu warten, bis sie gespeichert wurden.",
+  "Tab size": "Tab Größe",
+  "The app flow will still continue but unexpected behavior may occur. When in doubt restart the app.": "Die APP wird weiterhin ausgeführt, aber unerwartete Fehler könnten erscheinen. Sollte es passieren, die APP neu starten.",
+  "The application is being loaded": "Die Anwendung wird geladen",
+  "The authentication failed with Google": "Die Authentifizierung mit Google ist gescheitert",
+  "The browser you are using is completely untested with this app. Consider using another browser.": "Der Browser, den du benutzt, ist ungetestet mit dieser APP. Erwägen Sie einen anderen Browser.",
+  "The browser you are using is not officialy tested. The app should work but your milleage may vary.": "Dein Browser wurde nicht offiziell getestet. Die APP sollte funktionieren, aber die Leistung kann variieren.",
+  "This file has an unknown encoding.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Autosave has been temporarly disabled.": "Diese Datei hat eine unbekannte Codierung.<br/>Einige Zeichen sind möglicherweise beschädigt und die Datei verliert Teile der Codierung beim speichern.<br/>Automatisches Speicheren wurde vorübergehend deaktiviert.",
+  "This file is already being saved. Calm down.": "Diese Datei wird bereits gespeichert. Beruhige dich.",
+  "This should take a few seconds. You can skip this step if you're too impatient.": "Dies sollte ein paar Sekunden dauern. Sie können diesen Schritt überspringen, wenn Sie zu ungeduldig sind.",
+  "Waiting for your preferences to be saved.": "Warten auf das Speichern der Einstellungen.",
+  "We got this message from Google": "Wir bekamen folgende Nachricht von Google",
+  "Without this the app is useless to you.": "Ohne das ist die APP nutzlos für dich.",
+  "Word wrapping": "Zeilenumbruch",
+  "X-large": "Sehr groß",
+  "You have unsaved changes or your file is still being saved. You will lose your changes": "Du hast ungespeicherte Änderungen oder deine Datei wird gerade gespeichert. Du wirst deine Änderungen verlieren",
+  "You must save the file before you can share it.": "Du musst die Datei speichern, bevor du sie teilen kannst.",
+  "You need to authorize this app to access your Google Drive": "Sie müssen die APP für den Zugriff auf Google Drive autorisieren",
+  "You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests.": "Sie müssen PopUps in Ihrem Browser erlauben, dann sich mit ihrem Google Account einloggen und die Autorisierungs-Anfrage der APP akteptieren.",
+  "You should now restart the app to fully flush your preferences.": "Sie sollten die APP nun neustarten um alle Einstellungen komplett zu löschen",
+  "Your file is being loaded": "Deine Datei wird geladen",
+  "vim": "vim"
+}
+,
+    "it"    : {
+  "": "",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "A favorite with the same file ID already exists": "Esiste già un preferito con lo stesso file ID",
+  "A favorite with this name already exists.": "Esiste già un preferito con questo nome",
+  "An unexpected error occured with Google's server": "Errore imprevisto con il server di Google",
+  "App home page": "Home page app",
+  "Are you sure ?": "Sei sicuro?",
+  "Authorize!": "Autorizza!",
+  "Can't favorite file as it is not saved yet...": "File non ancora salvato. Non può essere aggiunto ai preferiti",
+  "Close": "Chiudi",
+  "Couldn't detect which browser you are using. The app should work but your milleage may vary.": "Browser non identificato. L'applicazione dovrebbe funzionare, ma l'esperienza di uso potrebbe cambiare",
+  "Creating new file": "Creazione di un nuovo file",
+  "Depending on the file size, this can be long.": "Potrebbe richiedere del tempo in base alle dimensioni del file",
+  "Device": "Dispositivo",
+  "Editor mode": "Modalità modifica",
+  "Emacs": "Emacs",
+  "Enter an alias for this favorite": "Assegna un alias a questo preferito",
+  "Favorite this file": "Aggiungi questo file ai preferiti",
+  "Favorites": "Preferiti",
+  "File": "File",
+  "File loaded": "File caricato",
+  "File name": "Nome file",
+  "File title can't be empty": "Il titolo del file non può essere vuoto",
+  "Filename": "Nome del file",
+  "Font size": "Dimensione carattere",
+  "Google Drive file id": "ID file Google Drive",
+  "Google Drive folder id": "ID cartella Google Drive",
+  "Large": "Grande",
+  "Mime type": "Tipo MIME",
+  "New": "Nuovo",
+  "New file": "Nuovo file",
+  "Normal": "Normale",
+  "Open": "Apri",
+  "Options": "Opzioni",
+  "Press escape to cancel": "Premi ESC per interrompere",
+  "Print": "Stampa",
+  "Reset preferences": "Resetta preferenze",
+  "Restart app": "Fai ripartire l'applicazione",
+  "Save": "Salva",
+  "Saved": "Salvato",
+  "Saving": "Salvataggio",
+  "Search": "Cerca",
+  "Search & replace": "Cerca e sostituisci",
+  "Select syntax": "Seleziona sintassi",
+  "Select theme": "Seleziona tema",
+  "Share": "Condividi",
+  "Show file info": "Mostra informazioni file",
+  "Skip": "Salta",
+  "Small": "Piccolo",
+  "Some of your preferences are still being saved. Press 'Don't reload' to wait for them to be saved.": "Qualcuna delle tue preferenze è ancora in fase di salvataggio. Premi 'Don't reload' per attendere siano salvate",
+  "Tab size": "Dimensione tabulazione",
+  "The app flow will still continue but unexpected behavior may occur. When in doubt restart the app.": "L'applicazione conitnuerà, ma potrebbero verificarsi problemi imprevisti. Nel dubbio fai ripartire l'applicazione",
+  "The application is being loaded": "L'applicazione sta caricando",
+  "The authentication failed with Google": "Problemi di autenticazione con Google",
+  "The browser you are using is completely untested with this app. Consider using another browser.": "Il browser usato non è mai stato testato con questa applicazione. Prendi in considerazione do usarne un altro",
+  "The browser you are using is not officialy tested. The app should work but your milleage may vary.": "Il browser usato non è stato testato ufficialmente. L'applicazione dovrebbe funzionare, ma l'esperienza d'uso potrebbe cambiare",
+  "This file has an unknown encoding.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Autosave has been temporarly disabled.": "Questo file ha un tipo di encoding sconosciuto.<br/>Alcuni caratteri potrebbero essere corrotti e il file potrebbe perdere parte del suo encofing una volta salvato.<br/>Il salvataggio atuomatico è stato temporaneamente disabilitato",
+  "This file is already being saved. Calm down.": "Il salvataggio di questo file è già in corso. Rilassati",
+  "This should take a few seconds. You can skip this step if you're too impatient.": "Questa operazione dovrebbe durare alcuni secondi. Se sei impaziente puoi saltare questo passo",
+  "Waiting for your preferences to be saved.": "In attesa del salvataggio delle tue preferenze",
+  "We got this message from Google": "Abbiamo ricevuto questo messaggio da Google",
+  "Without this the app is useless to you.": "Senza questo l'applicazione è inutile",
+  "Word wrapping": "A capo automatico",
+  "X-large": "Più grande",
+  "You have unsaved changes or your file is still being saved. You will lose your changes": "Ci sono modifiche non ancora salvate. Le perderai",
+  "You must save the file before you can share it.": "Devi salvare il file prima di condividerlo.",
+  "You need to authorize this app to access your Google Drive": "Devi autorizzare l'applicazione a accedere a Google Drive",
+  "You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests.": "Devi abilitare i popup nel tuo browser, accedere al tuo account Google e accettare le autorizzazioni richieste dall'applicazione.",
+  "You should now restart the app to fully flush your preferences.": "Adesso dovresti far ripartire l'applicazione per cancellare le tue preferenze.",
+  "Your file is being loaded": "Caricamento file",
+  "vim": "vim"
+}
+,
+    "es"    : {
+  "": "",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "A favorite with the same file ID already exists": "Un archivo favorito con el mismo ID ya existe",
+  "A favorite with this name already exists.": "Un favorito con este mismo nombre ya existe",
+  "An unexpected error occured with Google's server": "Un error inesperado ocurrió con el servidor de Google",
+  "App home page": "Página de inicio de la app",
+  "Are you sure ?": "¿Está seguro?",
+  "Authorize!": "¡Autorice!",
+  "Can't favorite file as it is not saved yet...": "No se puede volver favorito este archivo ya que no ha sido guardado...",
+  "Close": "Cerrar",
+  "Couldn't detect which browser you are using. The app should work but your milleage may vary.": "No se pudo detectar cuál navegador usa. La app debería funcionar pero puede llegar a funcionar de forma diferente",
+  "Creating new file": "Creando nuevo archivo",
+  "Depending on the file size, this can be long.": "Dependiendo de el tamaño del archivo, esto puede llegar a tomar tiempo",
+  "Device": "Dispositivo",
+  "Editor mode": "Modo de editor",
+  "Emacs": " Modo 'Emacs'",
+  "Enter an alias for this favorite": "Agregue un alias a este favorito",
+  "Favorite this file": "Volver este archivo 'favorito'",
+  "Favorites": "Favoritos",
+  "File": "Archivo",
+  "File loaded": "Archivo cargado",
+  "File name": "Nombre del archivo",
+  "File title can't be empty": "El nombre de el archivo no puede estar vacío",
+  "Filename": "Nombre de el archivo",
+  "Font size": "Tamaño de la fuente",
+  "Google Drive file id": "ID de el archivo según Google Drive",
+  "Google Drive folder id": "ID de la carpeta según Google Drive",
+  "Large": "Grande",
+  "Mime type": "Tipo MIME",
+  "New": "Nuevo",
+  "New file": "Nuevo archivo",
+  "Normal": "Normal",
+  "Open": "Abrir",
+  "Options": "Opciones",
+  "Press escape to cancel": "Presione 'ESC' para cancelar",
+  "Print": "Imprimir",
+  "Reset preferences": "Resetear preferencias",
+  "Restart app": "Reiniciar la app",
+  "Save": "Guardar",
+  "Saved": "Guardado",
+  "Saving": "Guardando",
+  "Search": "Buscar",
+  "Search & replace": "Buscar y reemplazar",
+  "Select syntax": "Seleccione síntaxis",
+  "Select theme": "Seleccione el tema",
+  "Share": "Compartir",
+  "Show file info": "Mostrar información de el archivo",
+  "Skip": "Omitir",
+  "Small": "Pequeño",
+  "Some of your preferences are still being saved. Press 'Don't reload' to wait for them to be saved.": "Algunas de sus preferencias están siendo guardadas aún. Presione 'No refrescar' para esperar a que se guarden",
+  "Tab size": "Tamaño de la tabulación",
+  "The app flow will still continue but unexpected behavior may occur. When in doubt restart the app.": "El curso de la app puede continuar, pero comportamiento inesperado puede llegar a suceder. Si tiene dudas de seguir, reinice la app",
+  "The application is being loaded": "La aplicación se está cargando",
+  "The authentication failed with Google": "La autenticación con Google falló",
+  "The browser you are using is completely untested with this app. Consider using another browser.": "El explorador que está usando no ha sido probado completamente con esta app. Considere usar otro explorador",
+  "The browser you are using is not officialy tested. The app should work but your milleage may vary.": "El explorador que está usando no ha sido oficialmente probado con esta app. La app puede llegar a funcionar pero los resultados pueden variar",
+  "This file has an unknown encoding.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Autosave has been temporarly disabled.": "Éste archivo tiene una codificación desconocida.<br/>Algunos caracteres pueden estar corruptos y el archivo puede perder algunas partes de su codificación original al ser guardados.<br/>Autoguardado ha sido deshabilitado temporalmente para evitar esto",
+  "This file is already being saved. Calm down.": "Éste archivo ya está siendo guardado. Por favor espere.",
+  "This should take a few seconds. You can skip this step if you're too impatient.": "Esto debería de tomar sólo algunos segundos. Puede omitir este paso si está impaciente por empezar.",
+  "Waiting for your preferences to be saved.": "Esperando a que sus preferencias sean guardadas.",
+  "We got this message from Google": "Recibimos este mensaje de Google",
+  "Without this the app is useless to you.": "Sin esto, la app le es inservible",
+  "Word wrapping": "Ajuste de línea",
+  "X-large": "Extra grande",
+  "You have unsaved changes or your file is still being saved. You will lose your changes": "Tiene cambios sin guardar o están siendo guardados. Perderá estos camibios",
+  "You must save the file before you can share it.": "Debe de guardar este archivo antes de que lo pueda compartir.",
+  "You need to authorize this app to access your Google Drive": "Tiene que autorizar esta app para que acceda a Google Drive",
+  "You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests.": "Tiene que habilitar los 'pop-ups' en su navegador, luego, iniciar sesión en su cuenta de Google y aceptar la solicitud de autorización.",
+  "You should now restart the app to fully flush your preferences.": "Debe de reiniciar la app ahora para limpiar completamente sus preferencias.",
+  "Your file is being loaded": "Su archivo está siendo cargado",
+  "vim": "Modo Vim"
+}
+,
+    "pt-BR" : {
+  "": "",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "A favorite with the same file ID already exists": "Um favorito com o mesmo file ID já existe",
+  "A favorite with this name already exists.": "Um favorito com o mesmo nome já existe",
+  "An unexpected error occured with Google's server": "Um erro inesperado ocorreu com os servidores do Google",
+  "App home page": "Página inicial do aplicativo",
+  "Are you sure ?": "Você tem certeza?",
+  "Authorize!": "Autorizar!",
+  "Can't favorite file as it is not saved yet...": "O arquivo não pode se colocado como favorite enquanto não for salvo…",
+  "Close": "Fechar",
+  "Couldn't detect which browser you are using. The app should work but your milleage may vary.": "Não foi possível detectar o navegador que você está utilizando. O aplicativo deverá funcionar, mas sua velocidade poderá variar.",
+  "Creating new file": "Criando um novo arquivo",
+  "Depending on the file size, this can be long.": "Dependendo do tamanho do arquivo, isto pode levar um tempo longo.",
+  "Device": "Dispositivo",
+  "Editor mode": "Modo de edição",
+  "Emacs": "Emacs",
+  "Enter an alias for this favorite": "Entre com um apelido para este favorito",
+  "Favorite this file": "Adicione o arquivo aos Favoritos",
+  "Favorites": "Favoritos",
+  "File": "Arquivo",
+  "File loaded": "Arquivo carregado",
+  "File name": "Nome do Arquivo",
+  "File title can't be empty": "O Título do arquivo não pode ser vazio",
+  "Filename": "nomedoarquivo",
+  "Font size": "Tamanho da Fonte",
+  "Google Drive file id": "ID do arquivo no Google Drive",
+  "Google Drive folder id": "ID da pasta no Google Drive",
+  "Large": "Grande",
+  "Mime type": "Tipo de Arquivo",
+  "New": "Novo",
+  "New file": "Novo Arquivo",
+  "Normal": "Normal",
+  "Open": "Abrir",
+  "Options": "Opções",
+  "Press escape to cancel": "Pressione Esc para cancelar",
+  "Print": "Imprimir",
+  "Reset preferences": "Reinicializar as preferências",
+  "Restart app": "Reinicializar o aplicativo",
+  "Save": "Salvar",
+  "Saved": "Salvo",
+  "Saving": "Salvando",
+  "Search": "Procurar",
+  "Search & replace": "Procurar e Substituir",
+  "Select language": "Selecione o idioma",
+  "Select syntax": "Selecione a linguagem",
+  "Select theme": "Selecione o tema",
+  "Share": "Compartilhar",
+  "Show file info": "Mostrar informações do arquivo",
+  "Skip": "Pular",
+  "Small": "Pequeno",
+  "Some of your preferences are still being saved. Press 'Don't reload' to wait for them to be saved.": "Algumas de suas preferências estão sendo salvas. Pressione ‘não recarregar’ para aguardar até que esteja salvo.",
+  "Tab size": "Tamanho da aba",
+  "The app flow will still continue but unexpected behavior may occur. When in doubt restart the app.": "O fluxo do aplicativo continuará, mas problemas inesperados poderão ocorrer. Quando ocorrer mais de uma vez, reinicie o aplicativo.",
+  "The application is being loaded": "O aplicativo está sendo carregado",
+  "The authentication failed with Google": "A autenticação falhou com o Google",
+  "The browser you are using is completely untested with this app. Consider using another browser.": "O navegador que você está utilizando não é homologado com este aplicativo. Considere utilizar outro navegador.",
+  "The browser you are using is not officialy tested. The app should work but your milleage may vary.": "O navegador que você está utilizando não foi oficialmente testado. O aplicativo deverá funcionar, mas sua velocidade pode variar.",
+  "This file has an unknown encoding.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Autosave has been temporarly disabled.": "O arquivo contém uma codificação desconhecida. <br/>Alguns caracteres podem estar corrompidos e o arquivo perderá partes desta codificação quando salvo.<br/>O Salvamento automático foi temporariamente desabilitado.",
+  "This file is already being saved. Calm down.": "Este arquivo está sendo salvo. Aguarde um momento.",
+  "This should take a few seconds. You can skip this step if it is too long.": "Isto levará alguns segundos. Você pode pular este passo se estiver demorando muito.",
+  "Waiting for your preferences to be saved.": "Aguardando o salvamento de suas preferências.",
+  "We got this message from Google": "Nós recebemos esta mensagem do Google",
+  "Without this the app is useless to you.": "Sem isto o aplicativo não tem uso para você.",
+  "Word wrapping": "Quebra de palavras",
+  "X-large": "Muito Grande",
+  "You have unsaved changes or your file is still being saved. You will lose your changes": "Você tem mudanças não salvas ou seu arquivo ainda está sendo salvo. Você irá perder suas modificações",
+  "You must save the file before you can share it.": "Você deve salvar o arquivo antes de compartilhar.",
+  "You need to authorize this app to access your Google Drive": "Você precisa autorizar este aplicativo para acessar seu Google Drive",
+  "You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests.": "Você precisa habilitar os popups no seu navegador para então fazer login na sua conta do Google e aceitar a requisição de autorização do aplicativo.",
+  "You should now restart the app to fully flush your preferences.": "Você deve reiniciar o aplicativo para aplicar suas preferências.",
+  "Your file is being loaded": "Seu arquivo está sendo carregado",
+  "vim": "vim" 
+}
+,
+    "ro"    : {
+  "": "",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "A favorite with the same file ID already exists": "Exista un favorit cu acelasi ID.",
+  "A favorite with this name already exists.": "Exista un favorit cu acelasi nume.",
+  "An unexpected error occured with the provider server": "A aparut o eroare pentru serverul furnizat",
+  "App home page": "Pagina WEB a aplicatiei",
+  "Are you sure ?": "Sunteti sigur?",
+  "Authorize!": "Autorizare!",
+  "Can't favorite file as it is not saved yet...": "Nu puteti adauga ca favorit intrucat nu a fost salvat fisierul...",
+  "Close": "Inchide",
+  "Connect Dropbox": "Conectare la Dropbox",
+  "Couldn't detect which browser you are using. The app should work but your milleage may vary.": "Nu s-a putut detecta ce browser folositi. Este posibil ca aplicatia sa functione in conditii limitate",
+  "Creating new file in : ": "Se creaza fisier nou in :",
+  "Depending on the file size, this can be long.": "In functie de dimensiunea fisierului, acesta poate fi mai mare",
+  "Device": "Dispozitiv",
+  "Editor mode": "Modul Editare",
+  "Emacs": "Editor text Emacs",
+  "Enter an alias for this favorite": "Introduceti un nume alternativ pentru favorit",
+  "Favorite this file": "Marcheaza fisier ca favorit",
+  "Favorites": "Fisiere favorite",
+  "File": "Fisier",
+  "File id": "ID fisier",
+  "File loaded": "Fisier incarcat",
+  "File name": "Nume fisier",
+  "File provider": "Furnizor fisier",
+  "File title can't be empty": "Introduceti un nume pentru fisier",
+  "Filename": "Nume fisier",
+  "Folder id": "ID director",
+  "Font size": "Dimensiune font",
+  "Large": "Mare",
+  "Mime type": "Tip Mime",
+  "New": "Nou",
+  "New file": "Fisier Nou",
+  "Normal": "Normal",
+  "Open": "Deschide",
+  "Options": "Optiuni",
+  "Press escape to cancel": "Apasa ESC pentru a anula",
+  "Print": "Printeaza",
+  "Reset preferences": "Reseteaza preferinte",
+  "Restart app": "Restarteaza aplicatie",
+  "Save": "Salveaza",
+  "Saved": "Salvat",
+  "Saving": "In curs de salvare",
+  "Search": "Cauta",
+  "Search & replace": "Cauta si inlocuieste",
+  "Select language": "Selecteaza limba",
+  "Select syntax": "Selecteaza sintaxa",
+  "Select theme": "Selecteaza tema",
+  "Share": "Share",
+  "Show file info": "Arata informatii fisier",
+  "Skip": "Treci peste",
+  "Small": "Mic",
+  "Some of your preferences are still being saved. Press 'Don't reload' to wait for them to be saved.": "Unele din preferinte sunt in curs de salvare. Apasa 'Nu reincarca' pentru a astepta pana sunt salvate",
+  "Tab size": "Dimensiune Tab",
+  "The app flow will still continue but unexpected behavior may occur. When in doubt restart the app.": "Aplicatia va rula in continuare dar poate apare o comportare neasteptata. Restartati aplicatia cand considerati necesar.",
+  "The application is being loaded": "Aplicatie in curs de incarcare",
+  "The authentication failed with Google": "Procesul de autentificare cu Google a esuat",
+  "The browser you are using is completely untested with this app. Consider using another browser.": "Browser-ul folosit nu este testat pentru folosirea aplicatiei. Folositi un alt browser.",
+  "The browser you are using is not officialy tested. The app should work but your milleage may vary.": "Browser-ul folosit nu este oficial testat. Este posibil ca aplicatia sa functioneze corect dar nu garantam acest lucru ",
+  "This file has an unknown encoding.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Autosave has been temporarly disabled.": "Fisierul are o codificare necunoscuta.<br/>Unele caractere nu vor fi afisate corect si posibil ca fisierul sa nu fie salvat corect.<br/>Salvarea automata este temporar oprita.",
+  "This file is already being saved. Calm down.": "Acest fisier a fost salvat. Calmeaza-te!",
+  "This should take a few seconds. You can skip this step if it is too long.": "Va dura cateva secunde. Poti sa treci peste acest pas daca dureaza prea mult.",
+  "Waiting for your preferences to be saved.": "In curs de salvare preferinte",
+  "We got this message from Dropbox": "Am primit acest mesaj de la Dropbox",
+  "We got this message from Google": "Am primit acest mesaj de la Google",
+  "Without this the app is useless to you.": "Fara acest lucru aplicatia este inutila",
+  "Word wrapping": "Incadreaza text in margini ecran",
+  "X-large": "Foarte mare",
+  "You have unsaved changes or your file is still being saved. You will lose your changes": "Fisierul nu a fost salva sau fisier in curs de salvare",
+  "You must save the file before you can share it.": "Fisierul poate fi distribuit dupa ce a fost salvat",
+  "You need to authorize this app to access your Google Drive": "Trebuie sa autorizati aplicatia pentru a accesa Google Drive",
+  "You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests.": "Trebuie sa autorizati folosirea ferestrelor Pop Up dupa care sa autorizati aplicatia",
+  "You should now restart the app to fully flush your preferences.": "Preferintele vor fi aplicate dupa restartarea aplicatiei",
+  "Your file is being loaded": "Fisier in curs de incarcare",
+  "vim": "vim"
+}
+,
+    "pl"    : {
+  "": "",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "A favorite with the same file ID already exists": "Zakładka w ulubionych dla tego pliku już istnieje",
+  "A favorite with this name already exists.": "Zakładka w ulubionych o takiej samej nazwie już istnieje",
+  "An unexpected error occured with the provider server": "Niespodziewany błąd na stronie serwera usługodawcy",
+  "App home page": "Strona główna aplikacji",
+  "Are you sure ?": "Jesteś pewien?",
+  "Authorize!": "Dodaj uprawnienia",
+  "Close": "Zamknij",
+  "Connect Dropbox": "Połącz z Dropboxem",
+  "Couldn't detect which browser you are using. The app should work but your milleage may vary.": "Nie można wykryć Twojej wersji przeglądarki. Ta aplikacja powinna działać poprawnie, ale twoje doświadczenia mogą być od tego różne.",
+  "Creating new file in : ": "Tworzenie nowego pliku w : ",
+  "Depending on the file size, this can be long.": "W zależności od rozmiaru pliku, ten proces może długo potrwać",
+  "Device": "Urządzenie",
+  "Editor mode": "Tryb edycji",
+  "Emacs": "Emacs",
+  "Enter an alias for this favorite": "Wprowadź nazwę widoczną w ulubionych",
+  "Favorite this file": "Dodaj ten plik do ulubionych",
+  "Favorites": "Ulubione",
+  "File": "Plik",
+  "File id": "ID pliku",
+  "File loaded": "Plik załadowany",
+  "File name": "Nazwa pliku",
+  "File provider": "Usługodawca przechowujący plik",
+  "File title can't be empty": "Tytuł pliku nie może pozostać pusty",
+  "Filename": "Nazwa pliku",
+  "Folder id": "ID pliku",
+  "Font size": "Rozmiar czcionki",
+  "Large": "Duży",
+  "Mime type": "Typ MIME",
+  "New": "Nowy",
+  "New file": "Nowy plik",
+  "Normal": "Normalny",
+  "Open": "Otwórz",
+  "Options": "Opcje",
+  "Press escape to cancel": "Naciśnij ESC by anulować",
+  "Print": "Drukuj",
+  "Reset preferences": "Przywróć domyślne ustawienia",
+  "Restart app": "Uruchom ponownie aplikację",
+  "Save": "Zapisz",
+  "Saved": "Zapisano",
+  "Saving": "Zapisywanie",
+  "Search": "Znajdź",
+  "Search & replace": "Znajdź i zamień",
+  "Select language": "Wybierz język",
+  "Select syntax": "Wybierz składnię",
+  "Select theme": "Wybierz motyw",
+  "Share": "Udostępnij",
+  "Show file info": "Pokaż informacje o pliku",
+  "Skip": "Pomiń",
+  "Small": "Mały",
+  "Some of your preferences are still being saved. Press 'Don't reload' to wait for them to be saved.": "Niektóre ustawienia wciąż nie zostały zapisane. Naciśnij 'Don't reload' by poczekać aż zmiany zostaną zachowane.",
+  "Tab size": "Rozmiar wcięć",
+  "The app flow will still continue but unexpected behavior may occur. When in doubt restart the app.": "Aplikacja będzie nadal działać, ale może mieć nieoczekiwane zachowania. W razie wątpliwości - zrestartuj aplikację.",
+  "The application is being loaded": "Aplikacja jest wczytywana",
+  "The authentication failed with Google": "Logowanie przez Google nie powiodło się",
+  "The browser you are using is completely untested with this app. Consider using another browser.": "Ta aplikacja nie była testowana na Twojej przeglądarce. Proszę, wybierz inną.",
+  "The browser you are using is not officialy tested. The app should work but your milleage may vary.": "Ta aplikacja nie była oficjalnie testowana dla tej przeglądarki. Wszystko powinno działać, ale osobiste wrażenia mogą się różnić",
+  "This file is already being saved. Calm down.": "Spokojnie, ten plik jest właśnie zapisywany.",
+  "This should take a few seconds. You can skip this step if it is too long.": "Proces powinen zająć zaledwie kilka sekund. Jeżeli trwał będzie zbyt długo - przerwij",
+  "Waiting for your preferences to be saved.": "Zaczekaj, aż ustawienia zostaną zapisane",
+  "We got this message from Dropbox": "Otrzymaliśmy wiadomość z Dropbox",
+  "We got this message from Google": "Otrzymaliśmy tę wiadomość od Google:",
+  "Without this the app is useless to you.": "Bez tego aplikacja nie będzie dla Ciebie użyteczna",
+  "Word wrapping": "Zawijanie wierszy",
+  "X-large": "Ekstra duży",
+  "You have unsaved changes or your file is still being saved. You will lose your changes": "Masz niezapisane zmiany lub trwa proces zapisu. Przerwanie grozi utratą danych.",
+  "You must save the file before you can share it.": "Musisz zapisać plik by móc go udostępnić",
+  "You need to authorize this app to access your Google Drive": "Dodaj uprawnienia dla tej aplikacji by mieć dostęp do Dysku Google",
+  "You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests.": "Musisz włączyć tryb wyskakujących okienek (popups) w przeglądarce, następnie zalogować się na Twoim koncie Google, po czym należy zaakceptować prośbę o nadanie uprawnień dla tej aplikacji",
+  "You should now restart the app to fully flush your preferences.": "Teraz uruchom ponownie aplikację by na trwałe zapisać ustawienia",
+  "Your file is being loaded": "Twój plik jest właśnie wczytywany",
+  "vim": "vim",
+  "Can't favorite file as it is not saved yet...": "Nie można dodać pliku do ulubionych, ponieważ nie został zapisany...",
+  "This file has an unknown encoding.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Autosave has been temporarly disabled.": "Nie rozpoznano kodowania tego pliku.<br/>Niektóre znaki mogą być niepoprawnie wyświetlane, a w razie zapisu plik może utracić część swojego kodowania.<br/>Autozapis został tymczasowo wyłączony dla tego pliku.",
+  "Word wrapping": "Zawijanie wyrazów"
+}
+,
+    "tr"    : {
+  "": "",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "A favorite with the same file ID already exists": "Aynı dosya numarasına sahip bir sık kullanılan zaten mevcut",
+  "A favorite with this name already exists.": "Aynı dosya ismine sahip bir sık kullanılan zaten mevcut.",
+  "An unexpected error occured with the provider server": "Hizmet sunucuda beklenmeyen bir hata oluştu",
+  "App home page": "Uygulama ana sayfası",
+  "Are you sure ?": "Emin misiniz?",
+  "Authorize!": "İzin verin!",
+  "Can't favorite file as it is not saved yet...": "Dosya henüz kaydedilmediği için sık kullanılanlara eklenemiyor",
+  "Close": "Kapat",
+  "Connect Dropbox": "Dropbox'a bağlan",
+  "Couldn't detect which browser you are using. The app should work but your milleage may vary.": "Hangi internet tarayıcısını kullandığınız belirlenemedi. Uygulama yine de çalışacaktır ancak ne kadar çalışır Allah kerim.",
+  "Creating new file in : ": "Şurada yeni dosya oluşturuluyor: ",
+  "Depending on the file size, this can be long.": "Dosya boyutuna bağlı olarak bu işlem uzayabilir",
+  "Device": "Aygıt",
+  "Editor mode": "Düzenleyici modu",
+  "Emacs": "Emacs",
+  "Enter an alias for this favorite": "Bu sık kullanılan için bir kategori adı girin",
+  "Favorite this file": "Bu dosyayı sık kullanılanlara ekle",
+  "Favorites": "Sık kullanılanlar",
+  "File": "Dosya",
+  "File id": "Dosya no",
+  "File loaded": "Yüklenen dosya",
+  "File name": "Dosya adı",
+  "File provider": "Dosyayı sağlayan",
+  "File title can't be empty": "Dosya başlığı boş olamaz",
+  "Filename": "Dosya adı",
+  "Folder id": "Klasör no",
+  "Font size": "Font boyutu",
+  "Large": "Büyük",
+  "Mime type": "Mime türü",
+  "New": "Yeni",
+  "New file": "Yeni dosya",
+  "Normal": "Normal",
+  "Open": "Aç",
+  "Options": "Seçenekler",
+  "Press escape to cancel": "Vazgeçmek için ESC'ye basın",
+  "Print": "Yazdır",
+  "Reset preferences": "Tercihleri sıfırla",
+  "Restart app": "Uygulamayı sıfırla",
+  "Save": "Kaydet",
+  "Saved": "Kaydedildi",
+  "Saving": "Kaydediyor",
+  "Search": "Bul",
+  "Search & replace": "Bul ve değiştir",
+  "Select language": "Dil seç",
+  "Select syntax": "Sözdizim kuralları seç",
+  "Select theme": "Tema seç",
+  "Share": "Paylaş",
+  "Show file info": "Dosya bilgisini göster",
+  "Skip": "Atla",
+  "Small": "Küçük",
+  "Some of your preferences are still being saved. Press 'Don't reload' to wait for them to be saved.": "Tercihlerinizden bazıları hala kaydedilmeye çalışılıyor. Kaydedilmeleri için 'Sakın yenileme yapma' ya basınız. ",
+  "Tab size": "Sekme boyu",
+  "The app flow will still continue but unexpected behavior may occur. When in doubt restart the app.": "Uygulama yine de çalışmaya devam edecek ancak bazı beklenmeyen şeyler olabilir. Kararsız kalırsanız uygulamayı yeniden başlatın gitsin",
+  "The application is being loaded": "Uygulama yükleniyor",
+  "The authentication failed with Google": "Google ile kimlik doğrulama başarısız oldu",
+  "The browser you are using is completely untested with this app. Consider using another browser.": "Kullandığınız internet tarayıcı hiç bu uygulamayla test edilmedi. Başka birini kullanmayı düşünseniz iyi olur.",
+  "The browser you are using is not officialy tested. The app should work but your milleage may vary.": "Kullandığınız internet tarayıcınız test edilmedi. Uygulama yine de çalışacaktır ancak ne kadar çalışır Allah kerim.",
+  "This file has an unknown encoding.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Autosave has been temporarly disabled.": "Bu dosya bilinmeyen bir kodlama kullanıyor.<br/>Bazı karakterler bozuk çıkabilir ve kaydedildiğinde dosyanın bazı kısımları kaybolabilir.<br/>Otomatik kaydetme özelliği geçici olarak devre dışı bırakıldı.",
+  "This file is already being saved. Calm down.": "Bu dosya zaten kaydedilmeye çalışılıyor. Sabredin iki dakka.",
+  "This should take a few seconds. You can skip this step if it is too long.": "Bu işlem birkaç dakika alabilir. Çok sürerse bu basamağı atlayın.",
+  "Waiting for your preferences to be saved.": "Tercihlerininizin kaydedilmesi bekleniyor.",
+  "We got this message from Dropbox": "Dropbox'tan şu mesajı aldık",
+  "We got this message from Google": "Google'dan şu mesajı aldık",
+  "Without this the app is useless to you.": "Bu uygulama bunsuz hiçbir işe yaramaz.",
+  "Word wrapping": "Kelime kaydırma",
+  "X-large": "Çok büyük",
+  "You have unsaved changes or your file is still being saved. You will lose your changes": "Kaydedilmemiş değişiklikleriniz var ya da dosyanız hala kaydediliyor. Değişiklikleriniz gidecek.",
+  "You must save the file before you can share it.": "Dosyayı paylaşmadan önce kaydetmeniz gerekiyor.",
+  "You need to authorize this app to access your Google Drive": "Bu uygulamaya Google Drive'ınıza erişim izni vermeniz gerekiyor.",
+  "You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests.": "İnternet tarayıcınızda açılır pencerelere izin vermeniz gerekiyor. İzni verin, sonra Google hesabınıza giriş yapın ve uygulamanın izin isteğini onaylayın.",
+  "You should now restart the app to fully flush your preferences.": "Bütün tercihlerinizden vazgeçmek için uygulamayı şimdi yeniden başlatmanız gerekiyor.",
+  "Your file is being loaded": "Dosyanız yükleniyor",
+  "vim": "vim"
+}
+,
+    "ja"    : {
+  "": "",
+  "2": "2",
+  "3": "3",
+  "4": "4",
+  "5": "5",
+  "A favorite with the same file ID already exists": "同じIDのお気に入りが存在します",
+  "A favorite with this name already exists.": "同名のお気に入りが存在します",
+  "An unexpected error occured with the provider server": "プロバイダのサーバで予期せぬエラーが起こりました",
+  "App home page": "アプリホームページ",
+  "App info": "アプリ情報",
+  "Are you sure ?": "よろしいですか？",
+  "Authorize!": "認証完了！",
+  "Browser storage is inexistant. The app cannot work without it. Please use another browser or a update your current one.": "ブラウザのストレージが存在しません。アプリが稼働しませんので他のブラウザをご利用になるか、このブラウザを更新して下さい",
+  "Can't commit your preferences because they weren't loaded properly. It is advised to restart the app.": "設定が適切に読み込まれなかったため設定を保存できません。アプリを再起動して下さい",
+  "Can't favorite file as it is not saved yet...": "未保存のファイルはお気に入りに追加できません...",
+  "Cancel": "キャンセル",
+  "Close": "閉じる",
+  "Connect Dropbox": "Dropboxに接続",
+  "Couldn't detect which browser you are using. The app should work but your milleage may vary.": "ご利用のブラウザを識別できません。アプリは使えますが動作は安定しません",
+  "Creating new file in : ": "新規ファイル作成 : ",
+  "Depending on the file size, this can be long.": "ファイルサイズによっては時間がかかります。",
+  "Device": "デバイス",
+  "Editor mode": "エディタモード",
+  "Emacs": "Emacs",
+  "Enter an alias for this favorite": "お気に入りの別名を入力して下さい",
+  "Favorite this file": "このファイルをお気に入りに登録します",
+  "Favorites": "お気に入り",
+  "File": "ファイル",
+  "File id": "ファイルID",
+  "File loaded": "ファイルを読込みました",
+  "File name": "ファイル名",
+  "File provider": "ファイルプロバイダ",
+  "File title can't be empty": "ファイルのタイトルを入力して下さい",
+  "Filename": "ファイル名",
+  "Folder id": "フォルダID",
+  "Font size": "フォントサイズ",
+  "Help (FAQ)": "ヘルプ (FAQ)",
+  "In order to open this file, you need to switch user.": "このファイルを開くにはユーザを切替えて下さい",
+  "Large": "大",
+  "Mime type": "MIMEタイプ",
+  "New": "新規",
+  "New file": "新規ファイル",
+  "Normal": "中",
+  "OK": "OK",
+  "Open": "開く",
+  "Options": "オプション",
+  "Press escape to cancel": "Escキーでキャンセルして下さい",
+  "Print": "印刷",
+  "Requires to restart the application to be effective. Proceed with restart ?": "動作を改善するためアプリの再起動が必要です。再起動しますか？",
+  "Reset preferences": "設定を元に戻す",
+  "Restart app": "アプリの再起動",
+  "Restarting": "再起動中",
+  "Save": "保存",
+  "Saved": "保存しました",
+  "Saving": "保存中",
+  "Search": "検索",
+  "Search & replace": "検索と置換",
+  "Select language": "言語の選択",
+  "Select syntax": "シンタックスの選択",
+  "Select theme": "テーマの選択",
+  "Share": "共有",
+  "Show file info": "ファイル情報を見る",
+  "Skip": "スキップ",
+  "Small": "小",
+  "Some of your preferences are still being saved. Press 'Don't reload' to wait for them to be saved.": "設定を保存中です。'再読込みしない'をクリックして保存完了までお待ち下さい。",
+  "Switch user": "ユーザ切替え",
+  "Tab size": "タブ幅",
+  "The app flow will still continue but unexpected behavior may occur. When in doubt restart the app.": "アプリは続けて使えますが動作が不安定になります。不安があればアプリを再起動して下さい",
+  "The app is being restarted, please wait.": "アプリを再起動中です、しばらくお待ち下さい",
+  "The application is being loaded": "アプリを読込中です",
+  "The authentication failed with Google": "Google認証が失敗しました",
+  "The browser you are using is completely untested with this app. Consider using another browser.": "ご利用のブラウザは完全に検証されていません。他のブラウザをご利用下さい。",
+  "The browser you are using is not officialy tested. The app should work but your milleage may vary.": "ご利用のブラウザは正式に検証されていません。動作が安定しないおそれがあります。",
+  "This file has an unknown encoding.<br/>Some characters may be corrupted and the file may lose parts of it's encoding when saved.<br/>Autosave has been temporarly disabled.": "このファイルの文字コードが不明です。<br/>保存すると文字化けや文字欠けが起こります。<br/>自動保存を一時的に無効にしました。",
+  "This file is already being saved. Calm down.": "このファイルはすでに保存中です。しばらくお待ち下さい。",
+  "This should take a few seconds. You can skip this step if it is too long.": "この処理は数秒かかります。長すぎる場合はスキップできます。",
+  "User was not changed. Remember you can add accounts via the 'Add Account' button so they are available in the app.": "ユーザが切替わりませんでした。'アカウント追加'ボタンで追加すればアプリから利用できます。",
+  "Waiting for your preferences to be saved.": "設定保存中です。",
+  "We got this message from Dropbox": "Dropboxからのメッセージです",
+  "We got this message from Google": "Googleからのメッセージです",
+  "Without this the app is useless to you.": "アプリのご利用にはこれが必要です。",
+  "Word wrapping": "単語送り",
+  "X-large": "特大",
+  "You have unsaved changes or your file is still being saved. You will lose your changes": "未保存の変更があるかファイルが保存中です。変更が失われます。",
+  "You must save the file before you can share it.": "共有する前にファイルを保存して下さい。",
+  "You need to authorize this app to access your Google Drive": "このアプリにGoogleドライブへのアクセス権を与えて下さい。",
+  "You need to enable the popups in your browser, then login in your Google account and accept the app's authorization requests.": "ブラウザのポップアップを有効にしてから、Googleアカウントでログインし、アプリの認証要求を許可して下さい。",
+  "You should now restart the app to fully flush your preferences.": "設定を完全に書き込むためアプリを再起動して下さい。",
+  "Your file is being loaded": "ファイルの読込み中",
+  "Your preferences could not be loaded. This is likely due to a Google server error. Please try restarting the app and file a bug if it persists.": "設定を読込めませんでした。Googleサーバのエラーと思われます。アプリを再起動し、現象が続くようならバグとしてご報告下さい。",
+  "vim": "vim"
+}
+,
+  }
+  String.toLocaleString(locales_definition);
+  var desired_locale = getCookie("locale");
+  if(desired_locale && desired_locale != "auto"){
+    String.locale = desired_locale;
+  }
+  function i18n(string) {
+    return string.toLocaleString();
+  }
+
+  var templates = $('.template');
+  var partials = $('.template-partial');
+  var context = {
+    locales : locales,
+    grouped_syntaxes : {"A B ":[{"updated_at":"2016-07-21T04:33:49.685311739+02:00","_etag":"fc68cec9cb6cafb4451cc0cec26b0ef3","ace_js_mode":"asciidoc","created_at":"2016-07-21T04:33:49.685308884+02:00","display_name":"AsciiDoc","id":"au8393dd7n70ed44hf40"},{"_etag":"4a82549de1375f548e5a3d29621980e6","updated_at":"2016-07-21T04:33:49.597338507+02:00","created_at":"2016-07-21T04:33:49.597335998+02:00","ace_js_mode":"abap","id":"au8393dd7n70ed44hf30","display_name":"Advanced Business Application Programming"},{"display_name":"ActionScript","id":"au8393dd7n70ed44hf20","ace_js_mode":"actionscript","created_at":"2016-07-21T04:33:49.502605746+02:00","updated_at":"2016-07-21T04:33:49.502608904+02:00","_etag":"746cec6457ab30e338fdf628573079f1"},{"ace_js_mode":"assembly","created_at":"2016-07-21T04:33:49.729229378+02:00","display_name":"Assembly","id":"au8393dd7n70ed44hf4g","updated_at":"2016-07-21T04:33:49.729232383+02:00","_etag":"f0e79310acaa2028f4e04dec66bc7bb1"},{"updated_at":"2016-07-21T04:33:49.55028507+02:00","_etag":"438b897c673d9482a533b0a405d96677","created_at":"2016-07-21T04:33:49.550282403+02:00","ace_js_mode":"ada","id":"au8393dd7n70ed44hf2g","display_name":"Ada"},{"updated_at":"2016-07-21T04:33:49.37785325+02:00","_etag":"621e51a0f8bc1d73fd2e0a7d052b3423","id":"au8393dd7n70ed44hf1g","display_name":"ABC","created_at":"2016-07-21T04:33:49.37779571+02:00","ace_js_mode":"abc"},{"updated_at":"2016-07-21T04:33:49.780727572+02:00","_etag":"7eca1c5db045597610c5a8588c203504","display_name":"AutoHotkey","id":"au8393dd7n70ed44hf50","ace_js_mode":"autohotkey","created_at":"2016-07-21T04:33:49.780724723+02:00"},{"created_at":"2016-07-21T04:33:49.63836722+02:00","ace_js_mode":"apache_conf","id":"au8393dd7n70ed44hf3g","display_name":"Apache conf","_etag":"9ee6055dc3e4b6c8330e5ee7346b1ce1","updated_at":"2016-07-21T04:33:49.638370861+02:00"},{"_etag":"89fb621bda548238da4ca81bf74ffddb","updated_at":"2016-07-21T04:33:49.826639751+02:00","display_name":"Batch file","id":"au8393dd7n70ed44hf5g","ace_js_mode":"batchfile","created_at":"2016-07-21T04:33:49.826635235+02:00"}],"C ":[{"updated_at":"2016-07-21T04:33:50.555796125+02:00","_etag":"070d31f2be8034c29e90c6bf167ba1d9","created_at":"2016-07-21T04:33:50.555793023+02:00","ace_js_mode":"curly","id":"au8393ld7n70ed44hfag","display_name":"Curly"},{"id":"au8393ld7n70ed44hf90","display_name":"Cobol","created_at":"2016-07-21T04:33:50.224937811+02:00","ace_js_mode":"cobol","_etag":"456a80eb4b7c20b08a0cd35ac1c6217c","updated_at":"2016-07-21T04:33:50.224940952+02:00"},{"_etag":"b397bb51dbb8bf8f107356cc61986813","updated_at":"2016-07-21T04:33:50.064601577+02:00","ace_js_mode":"css","created_at":"2016-07-21T04:33:50.064675721+02:00","display_name":"CSS","id":"au8393ld7n70ed44hf7g"},{"id":"au8393ld7n70ed44hf8g","display_name":"Clojure","created_at":"2016-07-21T04:33:50.164406927+02:00","ace_js_mode":"clojure","updated_at":"2016-07-21T04:33:50.164411212+02:00","_etag":"e621eacf7a0b0d60b5a3b9849e5e5fda"},{"_etag":"bd985c8f8b285bb4b520b0f4765c6231","updated_at":"2016-07-21T04:33:50.016811236+02:00","created_at":"2016-07-21T04:33:50.016807808+02:00","ace_js_mode":"c9search","id":"au8393ld7n70ed44hf70","display_name":"C9 Search"},{"updated_at":"2016-07-21T04:33:49.877008515+02:00","_etag":"91e713e4c083c104628732d513186eb3","created_at":"2016-07-21T04:33:49.877005385+02:00","ace_js_mode":"c_cpp","id":"au8393dd7n70ed44hf60","display_name":"C / C++"},{"_etag":"2cab4b1d09fb9a1d583e3df6f0b0f7d4","updated_at":"2016-07-21T04:33:50.117046503+02:00","created_at":"2016-07-21T04:33:50.117043553+02:00","ace_js_mode":"cirry","id":"au8393ld7n70ed44hf80","display_name":"Cirry"},{"_etag":"64f7e47773ea21f5ee614ac1e42a08be","updated_at":"2016-07-21T04:33:50.353460104+02:00","ace_js_mode":"coffee","created_at":"2016-07-21T04:33:50.35345636+02:00","display_name":"Coffeescript","id":"au8393ld7n70ed44hf9g"},{"created_at":"2016-07-21T04:33:50.478618297+02:00","ace_js_mode":"coldfusion","id":"au8393ld7n70ed44hfa0","display_name":"ColdFusion","updated_at":"2016-07-21T04:33:50.47862145+02:00","_etag":"72552a478d25218189238d066e6f655f"},{"_etag":"1b0e6bd5707110756c5ff92f7c7330dc","updated_at":"2016-07-21T04:33:49.924200081+02:00","ace_js_mode":"csharp","created_at":"2016-07-21T04:33:49.92426086+02:00","display_name":"C#","id":"au8393dd7n70ed44hf6g"}],"D E F G ":[{"_etag":"e45277381aadd9ca080bffe26823b009","updated_at":"2016-07-21T04:33:50.618885934+02:00","created_at":"2016-07-21T04:33:50.618883005+02:00","ace_js_mode":"d","id":"au8393ld7n70ed44hfb0","display_name":"D Programming"},{"updated_at":"2016-07-21T04:33:50.832931949+02:00","_etag":"fec00aa71025dc930e9dabf38b1fab79","ace_js_mode":"django","created_at":"2016-07-21T04:33:50.832928707+02:00","display_name":"Django","id":"au8393ld7n70ed44hfcg"},{"updated_at":"2016-07-21T04:33:50.956768703+02:00","_etag":"541718e7f5014023c758fe27fb9bca85","id":"au8393ld7n70ed44hfd0","display_name":"DotNet","created_at":"2016-07-21T04:33:50.956764533+02:00","ace_js_mode":"dot"},{"id":"au8393ld7n70ed44hfc0","display_name":"Diff","created_at":"2016-07-21T04:33:50.748843918+02:00","ace_js_mode":"diff","_etag":"e18da8f5d50edbb1ad33c6ed6327bfc6","updated_at":"2016-07-21T04:33:50.748847493+02:00"},{"updated_at":"2016-07-21T04:33:50.694413644+02:00","_etag":"7903436922ef772982d0aa167cf38158","ace_js_mode":"dart","created_at":"2016-07-21T04:33:50.694410299+02:00","display_name":"Dart","id":"au8393ld7n70ed44hfbg"},{"display_name":"EJS","id":"au8393td7n70ed44hfdg","ace_js_mode":"ejs","created_at":"2016-07-21T04:33:51.139596149+02:00","updated_at":"2016-07-21T04:33:51.139598734+02:00","_etag":"a74ae178c432c1dbe1ed613a5b6e4240"},{"updated_at":"2016-07-21T04:33:51.199685753+02:00","_etag":"ba53984eff9b4c80a07235cbfeb4c0c9","display_name":"Erlang","id":"au8393td7n70ed44hfe0","ace_js_mode":"erlang","created_at":"2016-07-21T04:33:51.199683088+02:00"},{"_etag":"d478587acf3b7c08b8ee5c8996c7c00e","updated_at":"2016-07-21T04:33:51.254878435+02:00","display_name":"FORTH","id":"au8393td7n70ed44hfeg","ace_js_mode":"forth","created_at":"2016-07-21T04:33:51.254875262+02:00"},{"ace_js_mode":"golang","created_at":"2016-07-21T04:33:51.444947423+02:00","display_name":"Golang","id":"au8393td7n70ed44hffg","updated_at":"2016-07-21T04:33:51.444950988+02:00","_etag":"a9b9996c6de519022a1baabe10c75498"},{"_etag":"050d6b9f2857606301a34ed745615442","updated_at":"2016-07-21T04:33:51.526518159+02:00","ace_js_mode":"groovy","created_at":"2016-07-21T04:33:51.52653962+02:00","display_name":"Groovy","id":"au8393td7n70ed44hfg0"},{"display_name":"Gherkin","id":"au8393td7n70ed44hff0","ace_js_mode":"gherkin","created_at":"2016-07-21T04:33:51.381842623+02:00","updated_at":"2016-07-21T04:33:51.381845969+02:00","_etag":"3c1998b99871a97779990ad3ad05cc37"}],"H I ":[{"id":"au83945d7n70ed44hfj0","display_name":"Haxe","created_at":"2016-07-21T04:33:52.162942534+02:00","ace_js_mode":"haxe","updated_at":"2016-07-21T04:33:52.162945851+02:00","_etag":"f99556f8530b169d8da52715c2f6360f"},{"id":"au8393td7n70ed44hfh0","display_name":"HTML","created_at":"2016-07-21T04:33:51.839600917+02:00","ace_js_mode":"html","updated_at":"2016-07-21T04:33:51.839603827+02:00","_etag":"2c6a7bc675a5b3642687f2306a9487a7"},{"created_at":"2016-07-21T04:33:52.028453318+02:00","ace_js_mode":"handlebars","id":"au83945d7n70ed44hfi0","display_name":"Handlebars","updated_at":"2016-07-21T04:33:52.02845677+02:00","_etag":"660ee287ade17f172a835f32d15c517b"},{"_etag":"749014e3a7eab40b51018710118c7e59","updated_at":"2016-07-21T04:33:51.942865081+02:00","display_name":"HTML ERB","id":"au8393td7n70ed44hfhg","ace_js_mode":"html_ruby","created_at":"2016-07-21T04:33:51.942861928+02:00"},{"updated_at":"2016-07-21T04:33:52.099060298+02:00","_etag":"0e5d10ba82775e1d9781daf3024ba43d","created_at":"2016-07-21T04:33:52.099083519+02:00","ace_js_mode":"haskell","id":"au83945d7n70ed44hfig","display_name":"Haskell"},{"_etag":"a7239ecb777e16286c92257b627017c7","updated_at":"2016-07-21T04:33:51.632714082+02:00","display_name":"HAML","id":"au8393td7n70ed44hfgg","ace_js_mode":"haml","created_at":"2016-07-21T04:33:51.632711495+02:00"},{"updated_at":"2016-07-21T04:33:52.403178373+02:00","_etag":"2ddd399cee8cf18256550324099c6638","id":"au83945d7n70ed44hfjg","display_name":"INI","created_at":"2016-07-21T04:33:52.403175069+02:00","ace_js_mode":"ini"}],"J K ":[{"ace_js_mode":"jsp","created_at":"2016-07-21T04:33:52.695506168+02:00","display_name":"JSP","id":"au83945d7n70ed44hflg","updated_at":"2016-07-21T04:33:52.695510364+02:00","_etag":"627bf3510d66a73566fdea11ac03d5b2"},{"_etag":"358e6f83d9d66e21ca25c1eab8c57af8","updated_at":"2016-07-21T04:33:52.549349509+02:00","created_at":"2016-07-21T04:33:52.549346336+02:00","ace_js_mode":"json","id":"au83945d7n70ed44hfkg","display_name":"JSON"},{"id":"au83945d7n70ed44hfk0","display_name":"JACK","created_at":"2016-07-21T04:33:52.479476451+02:00","ace_js_mode":"jack","_etag":"65e9e3a18b17ff917a723ad7d2653be1","updated_at":"2016-07-21T04:33:52.479479247+02:00"},{"ace_js_mode":"julia","created_at":"2016-07-21T04:33:53.151452047+02:00","display_name":"Julia","id":"au8394dd7n70ed44hfo0","_etag":"42a1a604abe1cc049570ac9585066dc8","updated_at":"2016-07-21T04:33:53.151454617+02:00"},{"id":"au83945d7n70ed44hfn0","display_name":"Java","created_at":"2016-07-21T04:33:52.914882698+02:00","ace_js_mode":"java","_etag":"bcf51bd457fdc5c6b1168dc007b55d98","updated_at":"2016-07-21T04:33:52.914885584+02:00"},{"_etag":"a9413b92f73c11cdf866ce5b628c1fef","updated_at":"2016-07-21T04:33:52.85065892+02:00","created_at":"2016-07-21T04:33:52.850677421+02:00","ace_js_mode":"jade","id":"au83945d7n70ed44hfmg","display_name":"Jade"},{"_etag":"82d6302e30647d8c61b2b405a3be43f1","updated_at":"2016-07-21T04:33:52.629501207+02:00","id":"au83945d7n70ed44hfl0","display_name":"JSON Query Language","created_at":"2016-07-21T04:33:52.629497495+02:00","ace_js_mode":"jsoniq"},{"updated_at":"2016-07-21T04:33:52.990359597+02:00","_etag":"a7f79efa9d1a869c8b30bc63f5d15074","display_name":"Javascript","id":"au83945d7n70ed44hfng","ace_js_mode":"javascript","created_at":"2016-07-21T04:33:52.990356773+02:00"},{"_etag":"8c75484deeea19cb26afae6dbd7e11e6","updated_at":"2016-07-21T04:33:52.77104962+02:00","display_name":"JSX","id":"au83945d7n70ed44hfm0","ace_js_mode":"jsx","created_at":"2016-07-21T04:33:52.771046898+02:00"}],"L ":[{"created_at":"2016-07-21T04:33:53.908007108+02:00","ace_js_mode":"lisp","id":"au8394dd7n70ed44hfr0","display_name":"Lisp","updated_at":"2016-07-21T04:33:53.908010838+02:00","_etag":"2d6ba4daa7eb841c4f62d69c6f73c019"},{"created_at":"2016-07-21T04:33:54.351659549+02:00","ace_js_mode":"luapage","id":"au8394ld7n70ed44hft0","display_name":"Lua page","_etag":"8a64c0f9416fdf8846081549ec434adf","updated_at":"2016-07-21T04:33:54.351663245+02:00"},{"display_name":"LogiQL","id":"au8394ld7n70ed44hfs0","ace_js_mode":"logiql","created_at":"2016-07-21T04:33:54.079094432+02:00","updated_at":"2016-07-21T04:33:54.079098108+02:00","_etag":"fbb78fdb52168e593b60069e09196c36"},{"ace_js_mode":"lua","created_at":"2016-07-21T04:33:54.184467542+02:00","display_name":"Lua","id":"au8394ld7n70ed44hfsg","_etag":"c37160bc8d1173063101e6a3cd059111","updated_at":"2016-07-21T04:33:54.184470926+02:00"},{"updated_at":"2016-07-21T04:33:53.811203888+02:00","_etag":"a90c70fd60c8fd116e90002de5e76ee9","ace_js_mode":"liquid","created_at":"2016-07-21T04:33:53.811155071+02:00","display_name":"Liquid","id":"au8394dd7n70ed44hfqg"},{"updated_at":"2016-07-21T04:33:53.275051107+02:00","_etag":"f4cfcd4235dac71db09c82d171d53832","created_at":"2016-07-21T04:33:53.27504783+02:00","ace_js_mode":"less","id":"au8394dd7n70ed44hfog","display_name":"LESS"},{"updated_at":"2016-07-21T04:33:53.999491756+02:00","_etag":"c4a2ed37ecd3d1801c5c116ba1833b98","ace_js_mode":"livescript","created_at":"2016-07-21T04:33:53.999552134+02:00","display_name":"LiveScript","id":"au8394dd7n70ed44hfrg"},{"updated_at":"2016-07-21T04:33:53.519431416+02:00","_etag":"b6e58ed0b74e82b4af6bf2238cefad44","ace_js_mode":"lean","created_at":"2016-07-21T04:33:53.519493112+02:00","display_name":"Lean","id":"au8394dd7n70ed44hfpg"},{"updated_at":"2016-07-21T04:33:53.58505441+02:00","_etag":"fb1a6c21ff11384f3e4865c3b8a38070","display_name":"Linden Scripting","id":"au8394dd7n70ed44hfq0","ace_js_mode":"lsl","created_at":"2016-07-21T04:33:53.585072546+02:00"},{"ace_js_mode":"latex","created_at":"2016-07-21T04:33:53.364920083+02:00","display_name":"Latex","id":"au8394dd7n70ed44hfp0","_etag":"b816b7676145d9f296200ba319065b75","updated_at":"2016-07-21T04:33:53.364923979+02:00"},{"_etag":"888127e0da23c6d4614a732568048ba6","updated_at":"2016-07-21T04:33:54.432760991+02:00","ace_js_mode":"lucene","created_at":"2016-07-21T04:33:54.43275829+02:00","display_name":"Lucene","id":"au8394ld7n70ed44hftg"}],"M N O ":[{"created_at":"2016-07-21T04:33:55.067841177+02:00","ace_js_mode":"markdown","id":"au8394td7n70ed44hg00","display_name":"Markdown","updated_at":"2016-07-21T04:33:55.067844358+02:00","_etag":"5606730ef7211597b4b737fd0cc05120"},{"updated_at":"2016-07-21T04:33:55.281800682+02:00","_etag":"0fdc9ddf5d7d7d61c36e25d26cdd2afb","id":"au8394td7n70ed44hg10","display_name":"MySQL","created_at":"2016-07-21T04:33:55.281797349+02:00","ace_js_mode":"mysql"},{"display_name":"Makefile","id":"au8394ld7n70ed44hfvg","ace_js_mode":"makefile","created_at":"2016-07-21T04:33:54.890981127+02:00","updated_at":"2016-07-21T04:33:54.890984419+02:00","_etag":"ca25db3b8810fa8267da59496958d8f5"},{"ace_js_mode":"mushcode","created_at":"2016-07-21T04:33:54.756053642+02:00","display_name":"MUSHCode","id":"au8394ld7n70ed44hfv0","updated_at":"2016-07-21T04:33:54.755984173+02:00","_etag":"0fb2d1c68096c05a4b2399903b3e804f"},{"ace_js_mode":"mask","created_at":"2016-07-21T04:33:55.194108205+02:00","display_name":"Mask","id":"au8394td7n70ed44hg0g","updated_at":"2016-07-21T04:33:55.194112351+02:00","_etag":"dba23f8658d8cdbaaf1c09616fed6404"},{"updated_at":"2016-07-21T04:33:54.507320773+02:00","_etag":"5f31eb000f5af9ff6088984326e3059b","ace_js_mode":"matlab","created_at":"2016-07-21T04:33:54.507317586+02:00","display_name":"MATLAB","id":"au8394ld7n70ed44hfu0"},{"ace_js_mode":"mel","created_at":"2016-07-21T04:33:54.590359108+02:00","display_name":"MEL","id":"au8394ld7n70ed44hfug","_etag":"10dc0fe0e62f5357db010d6a59ff97a2","updated_at":"2016-07-21T04:33:54.590362223+02:00"},{"ace_js_mode":"nix","created_at":"2016-07-21T04:33:55.556665227+02:00","display_name":"Nix","id":"au8394td7n70ed44hg1g","_etag":"2de40cb5e5876641b78caa72e3c1fac3","updated_at":"2016-07-21T04:33:55.55664068+02:00"},{"_etag":"ba9c80dd63f27e2fbb9872be38997887","updated_at":"2016-07-21T04:33:55.658203465+02:00","id":"au8394td7n70ed44hg20","display_name":"OCaml","created_at":"2016-07-21T04:33:55.65820079+02:00","ace_js_mode":"ocaml"},{"created_at":"2016-07-21T04:33:55.841739265+02:00","ace_js_mode":"glsl","id":"au8394td7n70ed44hg30","display_name":"OpenGL Shading Language","_etag":"3c99cce8679c35e2f937e8dfe339b20b","updated_at":"2016-07-21T04:33:55.841788185+02:00"},{"_etag":"a09e3a8e83b471b8b72717f700662f4d","updated_at":"2016-07-21T04:33:55.755627656+02:00","ace_js_mode":"objectivec","created_at":"2016-07-21T04:33:55.755624284+02:00","display_name":"Objective C","id":"au8394td7n70ed44hg2g"}],"P Q R ":[{"_etag":"b4043ffded6414f6604bbb6aad199aa8","updated_at":"2016-07-21T04:33:56.10354685+02:00","created_at":"2016-07-21T04:33:56.10059392+02:00","ace_js_mode":"pgsql","id":"au83955d7n70ed44hg40","display_name":"PGSQL"},{"_etag":"2c119d2993da7d725b3bfe6a42a1f876","updated_at":"2016-07-21T04:33:56.756917667+02:00","id":"au83955d7n70ed44hg70","display_name":"Prolog","created_at":"2016-07-21T04:33:56.756913596+02:00","ace_js_mode":"prolog"},{"updated_at":"2016-07-21T04:33:56.308403107+02:00","_etag":"3cdf6b81bc8519086932262adaac6f5a","ace_js_mode":"pascal","created_at":"2016-07-21T04:33:56.308400133+02:00","display_name":"Pascal","id":"au83955d7n70ed44hg50"},{"updated_at":"2016-07-21T04:33:56.405771599+02:00","_etag":"5e495ef53716fab43c5a368cb267546d","created_at":"2016-07-21T04:33:56.405768564+02:00","ace_js_mode":"perl","id":"au83955d7n70ed44hg5g","display_name":"Perl"},{"ace_js_mode":"python","created_at":"2016-07-21T04:33:57.22590149+02:00","display_name":"Python","id":"au8395dd7n70ed44hg8g","_etag":"114f8403bcba115a1f2aa46fa4528994","updated_at":"2016-07-21T04:33:57.225904582+02:00"},{"updated_at":"2016-07-21T04:33:56.895125809+02:00","_etag":"416c6f380ca6caf91361ee567e65e9bc","display_name":"Properties","id":"au83955d7n70ed44hg7g","ace_js_mode":"properties","created_at":"2016-07-21T04:33:56.895122272+02:00"},{"_etag":"c460c888907c1a91c539c7415ad7cda8","updated_at":"2016-07-21T04:33:56.609625293+02:00","created_at":"2016-07-21T04:33:56.609622041+02:00","ace_js_mode":"powershell","id":"au83955d7n70ed44hg6g","display_name":"Powershell"},{"_etag":"c73b58a4f982646c91dae170367f4396","updated_at":"2016-07-21T04:33:57.057359091+02:00","display_name":"Protobuf","id":"au8395dd7n70ed44hg80","ace_js_mode":"protobuf","created_at":"2016-07-21T04:33:57.057356458+02:00"},{"_etag":"e36fa484effd684c085949bb0b8cebd9","updated_at":"2016-07-21T04:33:56.512880992+02:00","display_name":"Plain text","id":"au83955d7n70ed44hg60","ace_js_mode":"plain_text","created_at":"2016-07-21T04:33:56.512877854+02:00"},{"display_name":"PDMS PML","id":"au83955d7n70ed44hg3g","ace_js_mode":"pdms_pml","created_at":"2016-07-21T04:33:56.00377523+02:00","_etag":"5c7648ba97e5ccd34de80e86cd13771e","updated_at":"2016-07-21T04:33:56.003778635+02:00"},{"display_name":"PHP","id":"au83955d7n70ed44hg4g","ace_js_mode":"php","created_at":"2016-07-21T04:33:56.190663541+02:00","updated_at":"2016-07-21T04:33:56.19066674+02:00","_etag":"5b5a73c42aef589e96f09a867ab764c2"},{"updated_at":"2016-07-21T04:33:57.325531762+02:00","_etag":"483bc79eeb2ca607d406e99a079e20ca","created_at":"2016-07-21T04:33:57.325529017+02:00","ace_js_mode":"r","id":"au8395dd7n70ed44hg90","display_name":"R"},{"updated_at":"2016-07-21T04:33:57.737253794+02:00","_etag":"48f75a49afc14640cee7148763655785","display_name":"RHTML","id":"au8395dd7n70ed44hga0","ace_js_mode":"rhtml","created_at":"2016-07-21T04:33:57.737250963+02:00"},{"id":"au8395dd7n70ed44hgb0","display_name":"Rust","created_at":"2016-07-21T04:33:57.928826613+02:00","ace_js_mode":"rust","updated_at":"2016-07-21T04:33:57.928829867+02:00","_etag":"84ca2e49d0f7b1a2a5d2119effa0a67e"},{"updated_at":"2016-07-21T04:33:57.536529873+02:00","_etag":"0dc2b793b2c78546fba26e12b5445091","id":"au8395dd7n70ed44hg9g","display_name":"RDoc","created_at":"2016-07-21T04:33:57.53647513+02:00","ace_js_mode":"rdoc"},{"_etag":"1d77a53c2497ed68dd2c74f20982f08d","updated_at":"2016-07-21T04:33:57.826716221+02:00","id":"au8395dd7n70ed44hgag","display_name":"Ruby","created_at":"2016-07-21T04:33:57.826712539+02:00","ace_js_mode":"ruby"}],"S ":[{"id":"au8395ld7n70ed44hge0","display_name":"SVG","created_at":"2016-07-21T04:33:58.960189359+02:00","ace_js_mode":"svg","_etag":"ce0ed5f0893ce1e2e439f2279f42dc2c","updated_at":"2016-07-21T04:33:58.96019251+02:00"},{"id":"au8395ld7n70ed44hgcg","display_name":"SCSS","created_at":"2016-07-21T04:33:58.458349843+02:00","ace_js_mode":"scss","_etag":"3c0dd9d1c57d237b7d36961e5d937c54","updated_at":"2016-07-21T04:33:58.458352801+02:00"},{"display_name":"Shell","id":"au8395td7n70ed44hgfg","ace_js_mode":"sh","created_at":"2016-07-21T04:33:59.533991957+02:00","_etag":"f510409e4903d8fdc23f281555021297","updated_at":"2016-07-21T04:33:59.533995073+02:00"},{"ace_js_mode":"sass","created_at":"2016-07-21T04:33:58.147193661+02:00","display_name":"SASS","id":"au8395ld7n70ed44hgbg","updated_at":"2016-07-21T04:33:58.147197335+02:00","_etag":"cd10e39dc2173ba7795c8ff9faeb12ae"},{"updated_at":"2016-07-21T04:33:59.411600146+02:00","_etag":"21016e6194fabb8dde588be4e85d2214","created_at":"2016-07-21T04:33:59.411624306+02:00","ace_js_mode":"scheme","id":"au8395td7n70ed44hgf0","display_name":"Scheme"},{"id":"au8395td7n70ed44hgeg","display_name":"Scala","created_at":"2016-07-21T04:33:59.206863908+02:00","ace_js_mode":"scala","updated_at":"2016-07-21T04:33:59.206867154+02:00","_etag":"d6cf766d2865d90bd206460be9b6c026"},{"_etag":"902740b7d5b8e30eea74bc7eb506e5bc","updated_at":"2016-07-21T04:33:59.995213255+02:00","display_name":"Soy template","id":"au8395td7n70ed44hgh0","ace_js_mode":"soy_template","created_at":"2016-07-21T04:33:59.995210637+02:00"},{"_etag":"73f1cea4cdb18831e2465bc2abdb1962","updated_at":"2016-07-21T04:34:00.418797224+02:00","ace_js_mode":"stylus","created_at":"2016-07-21T04:34:00.418793844+02:00","display_name":"Stylus","id":"au83965d7n70ed44hgi0"},{"ace_js_mode":"scad","created_at":"2016-07-21T04:33:58.318140989+02:00","display_name":"SCAD","id":"au8395ld7n70ed44hgc0","_etag":"9dfe8f56cc7f52e9c82fb1a47d7dffc2","updated_at":"2016-07-21T04:33:58.318145985+02:00"},{"updated_at":"2016-07-21T04:33:58.822649572+02:00","_etag":"5c2bb0d3168193972f750c4a7a7954d6","id":"au8395ld7n70ed44hgdg","display_name":"SQL","created_at":"2016-07-21T04:33:58.822646923+02:00","ace_js_mode":"sql"},{"ace_js_mode":"snippets","created_at":"2016-07-21T04:33:59.750617502+02:00","display_name":"Snippets","id":"au8395td7n70ed44hggg","_etag":"35da544cc9d37e225e0aafca4a62a8df","updated_at":"2016-07-21T04:33:59.750620134+02:00"},{"updated_at":"2016-07-21T04:33:58.666034078+02:00","_etag":"2753d22537d4f80da619edce6c89a410","created_at":"2016-07-21T04:33:58.666030272+02:00","ace_js_mode":"sjs","id":"au8395ld7n70ed44hgd0","display_name":"SJS"},{"display_name":"Space","id":"au83965d7n70ed44hghg","ace_js_mode":"space","created_at":"2016-07-21T04:34:00.200415144+02:00","_etag":"c3b443400d332496ce9215d621984f6a","updated_at":"2016-07-21T04:34:00.200418251+02:00"},{"id":"au8395td7n70ed44hgg0","display_name":"Smarty","created_at":"2016-07-21T04:33:59.640549957+02:00","ace_js_mode":"smarty","updated_at":"2016-07-21T04:33:59.640552343+02:00","_etag":"fe27fd0e7f32917631fd17bb6b6a1697"}],"T ":[{"updated_at":"2016-07-21T04:34:01.480475388+02:00","_etag":"64a9ceb5d1292bc4a741fc2efa181a2c","created_at":"2016-07-21T04:34:01.48047135+02:00","ace_js_mode":"twig","id":"au8396dd7n70ed44hgkg","display_name":"Twig"},{"_etag":"dceac57ba7d4b4cb7c7a99b9375028d0","updated_at":"2016-07-21T04:34:01.059106004+02:00","id":"au8396dd7n70ed44hgjg","display_name":"TOML","created_at":"2016-07-21T04:34:01.059127578+02:00","ace_js_mode":"toml"},{"display_name":"Textile","id":"au8396dd7n70ed44hgk0","ace_js_mode":"textile","created_at":"2016-07-21T04:34:01.213828382+02:00","updated_at":"2016-07-21T04:34:01.213831938+02:00","_etag":"f2922cc52cf85b7b0dd8c31f548f4b0e"},{"display_name":"TEX","id":"au83965d7n70ed44hgj0","ace_js_mode":"tex","created_at":"2016-07-21T04:34:00.882450662+02:00","updated_at":"2016-07-21T04:34:00.882494886+02:00","_etag":"4ae0105322870946702c7b9bf6bc05e8"},{"updated_at":"2016-07-21T04:34:00.661165036+02:00","_etag":"bda05847f9a5136a88fb6b8dbf18ba09","id":"au83965d7n70ed44hgig","display_name":"TCL","created_at":"2016-07-21T04:34:00.661160875+02:00","ace_js_mode":"tcl"},{"id":"au8396dd7n70ed44hgl0","display_name":"TypeScript","created_at":"2016-07-21T04:34:01.79074+02:00","ace_js_mode":"typescript","updated_at":"2016-07-21T04:34:01.790743257+02:00","_etag":"fc9da9a5c2c9c270e00bf7cc46967874"}],"U V W X Y Z ":[{"updated_at":"2016-07-21T04:34:02.572023947+02:00","_etag":"ab850f2154e0804bf999f67b87b8aab8","ace_js_mode":"velocity","created_at":"2016-07-21T04:34:02.572017896+02:00","display_name":"Velocity","id":"au8396ld7n70ed44hgmg"},{"created_at":"2016-07-21T04:34:02.340110228+02:00","ace_js_mode":"vhdl","id":"au8396ld7n70ed44hgm0","display_name":"VHDL","_etag":"932b753f31b21fd26ed08ec8def02707","updated_at":"2016-07-21T04:34:02.340113443+02:00"},{"ace_js_mode":"verilog","created_at":"2016-07-21T04:34:02.867299363+02:00","display_name":"Verilog","id":"au8396ld7n70ed44hgn0","updated_at":"2016-07-21T04:34:02.86730266+02:00","_etag":"bd75226b2e5170b4fcf34c5ece1c83a3"},{"ace_js_mode":"vbscript","created_at":"2016-07-21T04:34:02.015250022+02:00","display_name":"VB Script","id":"au8396ld7n70ed44hglg","_etag":"f34210464d86cc767cadea4bc479ae9c","updated_at":"2016-07-21T04:34:02.015219431+02:00"},{"updated_at":"2016-07-21T04:34:03.285795486+02:00","_etag":"6fd7715cf9df310c51fae76be2f28267","id":"au8396td7n70ed44hgo0","display_name":"XQuery","created_at":"2016-07-21T04:34:03.28579248+02:00","ace_js_mode":"xquery"},{"created_at":"2016-07-21T04:34:03.024989137+02:00","ace_js_mode":"xml","id":"au8396td7n70ed44hgng","display_name":"XML","updated_at":"2016-07-21T04:34:03.024991988+02:00","_etag":"85454a30c66c30e5e11c4922ba8cd5c4"},{"ace_js_mode":"yaml","created_at":"2016-07-21T04:34:03.590952491+02:00","display_name":"YAML","id":"au8396td7n70ed44hgog","updated_at":"2016-07-21T04:34:03.590956037+02:00","_etag":"ab6469a1e526e4fb6b91aa9cb99a0ed8"}]},
+    themes : [{"theme_name":"ace/theme/tomorrow_night_eighties","theme_display_name":"tomorrow-night-eighties"},{"theme_name":"ace/theme/eclipse","theme_display_name":"eclipse"},{"theme_display_name":"dreamweaver","theme_name":"ace/theme/dreamweaver"},{"theme_name":"ace/theme/monokai","theme_display_name":"monokai"},{"theme_display_name":"tomorrow-night-bright","theme_name":"ace/theme/tomorrow_night_bright"},{"theme_name":"ace/theme/terminal","theme_display_name":"terminal"},{"theme_name":"ace/theme/kuroir","theme_display_name":"kuroir"},{"theme_display_name":"pastel-on-dark","theme_name":"ace/theme/pastel_on_dark"},{"theme_display_name":"chrome","theme_name":"ace/theme/chrome"},{"theme_name":"ace/theme/idle_fingers","theme_display_name":"idle-fingers"},{"theme_name":"ace/theme/tomorrow","theme_display_name":"tomorrow"},{"theme_name":"ace/theme/solarized_light","theme_display_name":"solarized-light"},{"theme_display_name":"mono-industrial","theme_name":"ace/theme/mono_industrial"},{"theme_display_name":"cobalt","theme_name":"ace/theme/cobalt"},{"theme_name":"ace/theme/vibrant_ink","theme_display_name":"vibrant-ink"},{"theme_display_name":"solarized-dark","theme_name":"ace/theme/solarized_dark"},{"theme_name":"ace/theme/crimson_editor","theme_display_name":"crimson-editor"},{"theme_name":"ace/theme/textmate","theme_display_name":"textmate"},{"theme_name":"ace/theme/dawn","theme_display_name":"dawn"},{"theme_name":"ace/theme/kr_theme","theme_display_name":"kr-theme"},{"theme_name":"ace/theme/tomorrow_night_blue","theme_display_name":"tomorrow-night-blue"},{"theme_name":"ace/theme/github","theme_display_name":"github"},{"theme_display_name":"tomorrow-night","theme_name":"ace/theme/tomorrow_night"},{"theme_name":"ace/theme/ambiance","theme_display_name":"ambiance"},{"theme_name":"ace/theme/merbivore","theme_display_name":"merbivore"},{"theme_name":"ace/theme/merbivore_soft","theme_display_name":"merbivore-soft"},{"theme_name":"ace/theme/twilight","theme_display_name":"twilight"},{"theme_name":"ace/theme/clouds","theme_display_name":"clouds"},{"theme_name":"ace/theme/xcode","theme_display_name":"xcode"},{"theme_name":"ace/theme/clouds_midnight","theme_display_name":"clouds-midnight"},{"theme_name":"ace/theme/chaos","theme_display_name":"chaos"},{"theme_name":"ace/theme/katzenmilch","theme_display_name":"katzenmilch"}],
+    application : application,
+  };
+  for(var i=0; i<3; i++){
+    context.themes.unshift("dummy");
+  }
+
+  Handlebars.registerHelper('i18n', i18n);
+
+  Handlebars.registerHelper('noaction', function(){return "javascript:void(0)"});
+
+  Handlebars.registerHelper('m-action-n-close', function(action){
+    action = typeof(action) == "string" ? action : "";
+    return 'data-eb-click="top_menu_controller.action_and_close(function(){'+action+'})"'
+  });
+
+  Handlebars.registerHelper('isNull', function(val){
+    return val == null;
+  });
+
+  Handlebars.registerHelper('concat', function(){
+    var params = Array.from(arguments);
+    params = params.slice(0, params.length - 1);
+    return params.join('');
+  });
+
+  Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
+      lvalue = parseFloat(lvalue);
+      rvalue = parseFloat(rvalue);
+          
+      return {
+          "+": lvalue + rvalue,
+          "-": lvalue - rvalue,
+          "*": lvalue * rvalue,
+          "/": lvalue / rvalue,
+          "%": lvalue % rvalue
+      }[operator];
+  });
+
+  Handlebars.registerHelper("eq", function(param1, param2) {return param1 == param2;});
+  Handlebars.registerHelper("ne", function(param1, param2) {return param1 != param2;});
+  Handlebars.registerHelper("ge", function(param1, param2) {return param1 >= param2});
+  Handlebars.registerHelper("gt", function(param1, param2) {return param1 > param2});
+  Handlebars.registerHelper("le", function(param1, param2) {return param1 <= param2});
+  Handlebars.registerHelper("lt", function(param1, param2) {return param1 < param2;});
+
+  partials.each(function() {
+    var $source = $(this);
+    Handlebars.registerPartial($source.data('partial-name'), $source.html());
+  });
+
+  templates.each( function() {
+    var $source = $(this);
+    var source = $source.html();
+    var template = Handlebars.compile(source);
+    $(template(context)).insertAfter($source);
+  });
+
+ $("#app_load_modal").modal({'show':true,backdrop: true,backdrop: 'static', keyboard:false});
+ $('.modal-backdrop.fade.in').css('opacity', '1.0')
+
+  var dropbox_oauth_controller = new DropboxOAuthController({});
+
+  var oauth_controller = new GoogleOAuthController({
+    scopes : [
+      'https://www.googleapis.com/auth/drive.file',
+      'https://www.googleapis.com/auth/drive openid',
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/drive.install',
+      'https://www.googleapis.com/auth/drive.appdata',
+    ],
+  });
+
+  var user_preferences;
+  var editor_controller;
+  var top_menu_controller;
+  var menu_controller = new MenuController("menu");
+
+
+  oauth_controller.add_to_queue(function(){
+    user_preferences = new Preferences(
+      function(){
+        editor_controller = new EditorController("editor_app", {
+          'word_wrap_pref':BooleanPreference.find('word_wrap'),
+          'font_size_pref': StringPreference.find('ace_js_font_size'),
+          'tab_size_pref' : StringPreference.find('ace_js_tab_size'),
+          'major_notice_pref' : IntPreference.find('major_notice'),
+          'theme_pref': StringPreference.find('theme'),
+          'menu_width_pref' : StringPreference.find('menu_width'),
+          'keybinding_pref' : StringPreference.find('keybinding'),
+          'flash' : new FlashController('editor_flash'),
+          'file_explorer': new FileExplorerController("file_explorer_container", {
+            'height_pref' : StringPreference.find('file_explorer_height'),
+            }),
+          'favorites_controller': new FavoritesController({
+            favorites_pref:ArrayPreference.find("favorites"),
+            menu_controller:menu_controller,
+          }),
+        })
+        editor_controller.favorites_controller.parent = editor_controller;
+
+        editor_controller.file_explorer.parent = editor_controller;
+        editor_controller.file_explorer.flash = editor_controller.flash;
+        editor_controller.oauth_controller = oauth_controller;
+        editor_controller.file_explorer.load();
+        
+
+
+        if(application.dev_mode){
+          editor_controller.flash.sticky_warning("<a href='javascript:void(0)' onclick='javascript:application.stop_dev_mode()'>You are using the BETA version of the app. Bugs may occur. Click here to go back to the stable version</a>");
+          editor_controller.flash.sticky_success("<a target='_blank' href='http://bit.ly/afn-community'>Found a bug in the BETA version ?<br/>Click here to report it on the community</a>");
+        }
+
+        else {
+          editor_controller.flash.sticky_success("<a href='javascript:void(0)' onclick='javascript:application.try_dev_mode()'>Click here to try out the BETA version!</a>");
+        }
+        
+        if(!String.locale.match('^en')){
+          editor_controller.flash.sticky_success("<a target='_blank' href='http://bit.ly/afn-community'>You are using a translated version of the app. Report bad translations by clicking here</a>");
+        }
+
+        editor_controller.flash.sticky_success("Version 5 has just been released. <a target='_blank' href='http://bit.ly/afn-community'>Report any bug on the community by clicking here.</a>");
+
+        new EditorRouter(editor_controller)
+        top_menu_controller = new TopMenuController("menu", { 'flash' : editor_controller.flash, 'editor':editor_controller, 'menu':menu_controller });
+        editor_controller.top_menu = top_menu_controller;
+
+        // check for browser compat
+        setTimeout(function(){
+          editor_controller.browser_check();
+        }, 5000);
+      }
+    )
+  })
+
+//editor_controller.initialize_html() 
+
+$("#current_user").on({
+  mouseenter: user_hover_in,
+  mouseleave: user_hover_out,
+});
+
+function user_hover_in(){
+  //$(this).find("#user_details").show();
+  var orig = $.data(this, 'dimensions');
+  if(!orig) $.data(this, 'dimensions', { width: $(this).outerWidth(), height: $(this).outerHeight() });
+  // clear the other things to do and open it
+  $("#current_user").stop()
+  $("#current_user").animate({width:"500px"}, function(){
+    $("#user_details").show()
+    $("#current_user").animateAuto('width')
+  });
+}
+
+function user_hover_out(){
+  //$(this).find("#user_details").hide();
+  var orig = $.data(this, 'dimensions')
+  $("#current_user").stop()
+  $("#user_details").hide()
+  $("#current_user").animate({width:orig.width+"px", height:orig.height+"px"});
+  
+}
+
+</script>
+
+
+
+
+
+  <script>
+    function oauth_loaded(){
+      oauth_controller.init()
+    }
+  </script>
+
+  <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=oauth_loaded"></script>
+
+    <script>
+      $(document).ready(function() {
+          $.material.init();
+      });
+    </script>
+</body>
+</html>
+
