@@ -27,18 +27,6 @@
 </script>
 
 
-<script class="template-partial" data-partial-name="file_explorer" type="text/x-handlebars">
-<div id="file_explorer_container">
-  <div class="file_explorer panel panel-default ">
-    <div class="panel-body" id="file_tree_panel" >
-    <p class="flash_error" id="loading_error" style="display:none;">Your files couldn't load.<br/><a id="reauth_file_tree" href="#">Click here to reauthenticate.</a></p>
-    <div id="fileTree" class="demo"></div>
-    </div>
-  </div>
-</div>
-</script>
-
-
 <script class="template-partial" data-partial-name="terms" type="text/x-handlebars">
 <div class="modal fade" id="terms_modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
@@ -74,6 +62,33 @@
 
 
 
+<script class="template-partial" data-partial-name="mhelp" type="text/x-handlebars">
+<ul class="menu_list">
+  <li><a href="/">{{ i18n "App home page" }}</a></li>
+
+  <li><a href="{{noaction}}" {{{ m-action-n-close "new Popup({title : 'Keyboard shortcuts', hb_partial : '#keyboard-shortcuts'})" }}}>{{ i18n "Keyboard shortcuts" }}</a></li>
+
+  <li><a href="/faq" >{{ i18n "Frequently asked questions (FAQ)" }}</a></li>
+  
+  <li><a href="http://bit.ly/afn-community">{{ i18n "Google+ Community" }}</a></li>
+
+  <li><a href="{{noaction}}" {{{ m-action-n-close "new Popup({title : 'About this app', hb_partial : '#about'})" }}}>{{ i18n "About" }}</a></li>
+</ul>
+</script>
+
+
+<script class="template-partial" data-partial-name="mfile-open" type="text/x-handlebars">
+<div id="file_explorer_container">
+  <div class="file_explorer panel panel-default ">
+    <div class="panel-body" id="file_tree_panel" >
+    <p class="flash_error" id="loading_error" style="display:none;">Your files couldn't load.<br/><a id="reauth_file_tree" href="#">Click here to reauthenticate.</a></p>
+    <div id="fileTree" class="demo"></div>
+    </div>
+  </div>
+</div>
+</script>
+
+
 <script class="template-partial" data-partial-name="file_info" type="text/x-handlebars-template">
   <div class="modal fade" id="file_info_modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog">
@@ -95,6 +110,252 @@
       </div>
     </div>
   </div>
+</script>
+
+
+<script class="template-partial" data-partial-name="mfile-select-syntax" type="text/x-handlebars">
+<div class="syntaxes">
+  <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+  <ul class="menu_list">
+    {{#each grouped_syntaxes}}
+        <li>
+        <a href="{{noaction}};" class="sub_menu_item" >{{@key}}</a>
+        <div class="menu_content">
+          <div class="syntaxes">
+            <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+             <ul class="menu_list">
+                {{#each this}}
+                  <li>
+                    <a href="{{noaction}};" class="syntax_button syntax_{{this.ace_js_mode}}" {{{ m-action-n-close (concat "editor_controller.set_syntax_mode('" this.ace_js_mode "',true)") }}}>
+                      {{this.display_name}}
+                    </a>                  
+                  </li>
+                {{/each}}
+            </ul>
+          </div>
+         
+        </div>
+      </li>
+    {{/each}}
+  </ul>
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions" type="text/x-handlebars">
+<div class="options">
+  {{> moptions-basic-options }}
+
+  <div class="row">
+    <div class="col-md-6">
+      <a class="big_options_btn sub_menu_item btn btn-primary" href="{{noaction}}">Accounts</a>
+      <div class="menu_content">
+        {{> moptions-accounts }}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <a class="menu-options-advanced big_options_btn sub_menu_item btn btn-primary" href="{{noaction}}">Advanced</a>
+      <div class="menu_content">
+        <a href="{{noaction}}" class="menu_back themes_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+        <ul class="menu_list back_btn_padded">
+          <li>
+            <a href="{{noaction}}" class="sub_menu_item" target="_blank">{{ i18n "Select theme" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+            <div class="menu_content">
+              {{> moptions-advanced-select-theme }}
+            </div>
+          </li>
+
+          <li>
+            <a href="{{noaction}}" class="sub_menu_item" target="_blank">Select language<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+            <div class="menu_content">
+              {{> moptions-advanced-select-language }}
+            </div>
+          </li>
+
+          <li>
+            <a 
+              href="{{noaction}};" 
+              {{{ 
+                m-action-n-close (concat
+                  "user_preferences.reset();"
+                  "new Popup({ message : i18n('You should now restart the app to fully flush your preferences.'), callback : function(result) {if(result) editor_controller.restart_app()}, confirm : true, confirm_btn : i18n('Restart now'), cancel_btn : i18n('Restart later')});")
+              }}} 
+            >
+              {{ i18n "Reset preferences" }}
+            </a>
+          </li>
+
+
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="mfile" type="text/x-handlebars">
+<ul class="menu_list file_menu">
+  <li>
+    <a href="{{noaction}}" class="sub_menu_item" target="_blank">{{ i18n "New" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+      <ul class="menu_list">
+        <li><a href="#new/GoogleDrive" {{{ m-action-n-close }}}>Google Drive</a></li>
+        <li><a href="#new/Dropbox" {{{ m-action-n-close }}}>Dropbox</a></li>
+      </ul>
+    </div>
+  </li>
+  
+  <li>
+    <a href="{{noaction}}" class="menu-file-open sub_menu_item" target="_blank">{{ i18n "Open" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+      {{> mfile-open }}
+    </div>
+  </li>
+
+  <li>
+    <a href="{{noaction}}" class="menu-file-favorites sub_menu_item" target="_blank">{{ i18n "Favorites" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+      <ul class="menu_list favorites"></ul>
+    </div>
+  </li>
+
+  <li>
+    <a href="{{noaction}}" class="sub_menu_item" target="_blank">{{ i18n "Select syntax" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      {{> mfile-select-syntax }}
+    </div>
+  </li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.save()" }}} >{{ i18n "Save" }}</a></li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.open_share_modal()" }}}>{{ i18n "Share" }}</a></li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.print()" }}}>{{ i18n "Print" }}</a></li>
+  
+  <li>
+    <a href="{{noaction}};" {{{ m-action-n-close "editor_controller.open_search()" }}}>{{ i18n "Search" }} (Ctrl-F)</a>
+  </li>
+  
+  <li>
+    <a href="{{noaction}};" {{{ m-action-n-close "editor_controller.open_replace()" }}}>
+      {{ i18n "Search & replace" }}
+    </a>
+  </li>
+  
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.show_file_info()" }}}>{{ i18n "Show file info" }}</a></li>
+
+  <li><a href="/faq">{{ i18n "Help (FAQ)" }}</a></li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.restart_app()" }}}>{{ i18n "Restart app" }}</a></li>
+</ul>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-advanced-select-language" type="text/x-handlebars">
+<ul class="menu_list back_btn_padded">
+  <div class="text-center"><a href="javascript:void(0)" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a></div>
+  <li><a href="javascript:void(0)" onclick="javascript:editor_controller.select_locale('auto')" data-locale="auto">Auto detected</a></li>
+  {{#each locales}}
+  <li><a href="javascript:void(0)" onclick="javascript:editor_controller.select_locale('{{@key}}')">{{this}}</a></li>
+  {{/each}}
+</ul>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-advanced-select-theme" type="text/x-handlebars">
+<div class="row themes">
+<a href="{{noaction}}" class="menu_back themes_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+  {{#each themes}}
+    {{#if (eq (math @index "%" 12) 0) }}
+    <div class="col-md-4 theme-col-{{ math @index "/" 12 }}">
+      <div class="theme_choice_column btn-group-vertical"> 
+    {{/if}}
+      {{#if (eq this "dummy")}}
+        <a href="{{noaction}};" class="btn-dummy">{{this.theme_display_name}}</a>
+      {{else}}
+        <a href="{{noaction}};" class="btn btn-default btn_theme theme_{{this.theme_name}}"{{{ m-action-n-close (concat "editor_controller.select_theme('" this.theme_name "')") }}}>{{this.theme_display_name}}</a>
+      {{/if}}
+    {{#if (eq @index (math ../themes.length "-" 1 ))}}
+        </div>
+      </div>
+    {{else}}
+      {{#if (eq (math @index "%" 12) 11) }}
+        </div>
+      </div>
+      {{/if}}
+    {{/if}}
+  {{/each}}
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-basic-options" type="text/x-handlebars">
+<div class="row">
+  <div class="col-md-3">
+    {{ i18n "Editor mode" }} :
+    <select class="keybinding_select form-control">
+      <option value="normal">{{ i18n "Normal" }}</option>
+      <option value="vim">{{ i18n "vim" }}</option>
+      <option value="emacs">{{ i18n "Emacs" }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    {{ i18n "Tab size" }} : 
+    <select class="tab_size_select form-control">
+      <option value="2">{{ i18n "2" }}</option>
+      <option value="3">{{ i18n "3" }}</option>
+      <option value="4">{{ i18n "4" }}</option>
+      <option value="5">{{ i18n "5" }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    {{ i18n "Font size" }} :
+    <select class="font_size_select form-control">
+      <option value="0.5em">{{ i18n "Small" }}</option>
+      <option value="1em">{{ i18n "Normal" }}</option>
+      <option value="1.5em">{{ i18n "Large" }}</option>
+      <option value="2em">{{ i18n "X-large" }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    <div class="togglebutton">
+      <label>
+        {{ i18n "Word wrapping" }} : <input type="checkbox" class="word_wrap_checkbox">
+      </label>
+    </div>
+  </div>
+
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-accounts" type="text/x-handlebars">
+<a href="javascript:void(0)" class="menu_back themes_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+<ul class="menu_list back_btn_padded">
+  <li>
+    <h5 class="menu_header">Google Drive</h5>
+  </li>
+  <li>
+    <a href="{{noaction}}" {{{ m-action-n-close "window.open('https://accounts.google.com/AddSession','1461625036769','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0')" }}}>{{ i18n "Add account" }}</a>
+  </li>
+  <li>
+    <a href="{{noaction}}" {{{ m-action-n-close "oauth_controller.switch_user()" }}}>{{ i18n "Switch account" }}</a>
+  </li>
+  <li>
+    <h5 class="menu_header">Dropbox</h5>
+  </li>
+  <li>
+    <a href="{{noaction}}" {{{ m-action-n-close "dropbox_oauth_controller.test(function(){new Popup({message : i18n('Already connected !')})})" }}}>{{ i18n "Connect account" }}</a>
+  </li>
+</ul>
 </script>
 
 
@@ -314,27 +575,33 @@
 
 
 <script class="template-partial" data-partial-name="major_notice_modal" type="text/x-handlebars">
-<div class="modal fade" id="major_notice_modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="false" data-version="2">
+<div class="modal fade" id="major_notice_modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="false" data-version="3">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-body">
-      <h2>Welcome to Anyfile Notepad 4.0</h2>
-      <h3>This version introduces Dropbox support !</h3>
-
-      <h4>To get started :</h4>
-      <ul>
-        <li>Click 'File' -> 'Connect Dropbox'</li>
-        <li>Login with your Dropbox credentials</li>
-        <li>You can now create and open file from your Dropbox from the app.</li>
-        <li><b>NOTE: Dropbox doesn't support opening a file directly from the Dropbox interface. Nothing I can do about it...</b></li>
-      </ul>
-
-      <h4 style="text-align:center" class="alert alert-warning"> If you encounter any bugs or have any question (or maybe want to say thank you), write a message on our Google+ community </h4>
-
+        <h4>This version introduces changes to the menus.</h4>
+        <div class="mobile-show">
+          <h5>Overview of the changes:</h5>
+          <ul>
+            <li>The Open menu and the favorites have been moved to the File menu.</li>
+            <li>The syntax selection is now in the File menu</li>
+            <li>There is a new Accounts sub menu in the Options to manage the Google and Dropbox accounts.</li>
+            <li>There is a new Advanced sub menu in the Options to manage the language and theme used by the app</li>
+          </li>
+        </div>
+        <div class="non-mobile-show">
+          <h4>We suggest you take a quick tour to visualize the changes</h4>
+        </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="agree_major_notice">OK! Let's go</button>
+        <div class="non-mobile-show">
+          <button type="button" class="btn btn-primary agree_major_notice">Skip the tour</button>
+          <button type="button" onclick="javascript:application.tour_controller.menu_change_tour()" class="btn btn-primary agree_major_notice">OK! Let's go</button>
+        </div>
+        <div class="mobile-show">
+          <button type="button" class="btn btn-primary agree_major_notice">OK! Let's go</button>
+        </div>
       </div>
     </div>
   </div>

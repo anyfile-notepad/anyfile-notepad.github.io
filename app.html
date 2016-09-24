@@ -5,10 +5,10 @@
   
   <meta charset="UTF-8">
 
-  <link rel="stylesheet" type="text/css" href="/assets/application-0527fbd326984ccac5128738feb077ee96b40dec.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/assets/application-e06b3f19080163649c96cd8cfcd950d7a8c9987a.css" media="all">
   <link rel="stylesheet" type="text/css" href="/jqueryFileTree/jqueryFileTree.css" media="all">
 
-  <script type="text/javascript" src="/assets/application-0527fbd326984ccac5128738feb077ee96b40dec.js"></script>
+  <script type="text/javascript" src="/assets/application-e06b3f19080163649c96cd8cfcd950d7a8c9987a.js"></script>
   <script type="text/javascript" src="/jqueryFileTree/jqueryFileTree.js"></script>
   <script type="text/javascript" src="/ace.js/ace.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.cookie/1.4.0/jquery.cookie.min.js"></script>
@@ -67,18 +67,6 @@
 </script>
 
 
-<script class="template-partial" data-partial-name="file_explorer" type="text/x-handlebars">
-<div id="file_explorer_container">
-  <div class="file_explorer panel panel-default ">
-    <div class="panel-body" id="file_tree_panel" >
-    <p class="flash_error" id="loading_error" style="display:none;">Your files couldn't load.<br/><a id="reauth_file_tree" href="#">Click here to reauthenticate.</a></p>
-    <div id="fileTree" class="demo"></div>
-    </div>
-  </div>
-</div>
-</script>
-
-
 <script class="template-partial" data-partial-name="terms" type="text/x-handlebars">
 <div class="modal fade" id="terms_modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
@@ -114,6 +102,33 @@
 
 
 
+<script class="template-partial" data-partial-name="mhelp" type="text/x-handlebars">
+<ul class="menu_list">
+  <li><a href="/">{{ i18n "App home page" }}</a></li>
+
+  <li><a href="{{noaction}}" {{{ m-action-n-close "new Popup({title : 'Keyboard shortcuts', hb_partial : '#keyboard-shortcuts'})" }}}>{{ i18n "Keyboard shortcuts" }}</a></li>
+
+  <li><a href="/faq" >{{ i18n "Frequently asked questions (FAQ)" }}</a></li>
+  
+  <li><a href="http://bit.ly/afn-community">{{ i18n "Google+ Community" }}</a></li>
+
+  <li><a href="{{noaction}}" {{{ m-action-n-close "new Popup({title : 'About this app', hb_partial : '#about'})" }}}>{{ i18n "About" }}</a></li>
+</ul>
+</script>
+
+
+<script class="template-partial" data-partial-name="mfile-open" type="text/x-handlebars">
+<div id="file_explorer_container">
+  <div class="file_explorer panel panel-default ">
+    <div class="panel-body" id="file_tree_panel" >
+    <p class="flash_error" id="loading_error" style="display:none;">Your files couldn't load.<br/><a id="reauth_file_tree" href="#">Click here to reauthenticate.</a></p>
+    <div id="fileTree" class="demo"></div>
+    </div>
+  </div>
+</div>
+</script>
+
+
 <script class="template-partial" data-partial-name="file_info" type="text/x-handlebars-template">
   <div class="modal fade" id="file_info_modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog">
@@ -135,6 +150,252 @@
       </div>
     </div>
   </div>
+</script>
+
+
+<script class="template-partial" data-partial-name="mfile-select-syntax" type="text/x-handlebars">
+<div class="syntaxes">
+  <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+  <ul class="menu_list">
+    {{#each grouped_syntaxes}}
+        <li>
+        <a href="{{noaction}};" class="sub_menu_item" >{{@key}}</a>
+        <div class="menu_content">
+          <div class="syntaxes">
+            <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+             <ul class="menu_list">
+                {{#each this}}
+                  <li>
+                    <a href="{{noaction}};" class="syntax_button syntax_{{this.ace_js_mode}}" {{{ m-action-n-close (concat "editor_controller.set_syntax_mode('" this.ace_js_mode "',true)") }}}>
+                      {{this.display_name}}
+                    </a>                  
+                  </li>
+                {{/each}}
+            </ul>
+          </div>
+         
+        </div>
+      </li>
+    {{/each}}
+  </ul>
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions" type="text/x-handlebars">
+<div class="options">
+  {{> moptions-basic-options }}
+
+  <div class="row">
+    <div class="col-md-6">
+      <a class="big_options_btn sub_menu_item btn btn-primary" href="{{noaction}}">Accounts</a>
+      <div class="menu_content">
+        {{> moptions-accounts }}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <a class="menu-options-advanced big_options_btn sub_menu_item btn btn-primary" href="{{noaction}}">Advanced</a>
+      <div class="menu_content">
+        <a href="{{noaction}}" class="menu_back themes_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+        <ul class="menu_list back_btn_padded">
+          <li>
+            <a href="{{noaction}}" class="sub_menu_item" target="_blank">{{ i18n "Select theme" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+            <div class="menu_content">
+              {{> moptions-advanced-select-theme }}
+            </div>
+          </li>
+
+          <li>
+            <a href="{{noaction}}" class="sub_menu_item" target="_blank">Select language<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+            <div class="menu_content">
+              {{> moptions-advanced-select-language }}
+            </div>
+          </li>
+
+          <li>
+            <a 
+              href="{{noaction}};" 
+              {{{ 
+                m-action-n-close (concat
+                  "user_preferences.reset();"
+                  "new Popup({ message : i18n('You should now restart the app to fully flush your preferences.'), callback : function(result) {if(result) editor_controller.restart_app()}, confirm : true, confirm_btn : i18n('Restart now'), cancel_btn : i18n('Restart later')});")
+              }}} 
+            >
+              {{ i18n "Reset preferences" }}
+            </a>
+          </li>
+
+
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="mfile" type="text/x-handlebars">
+<ul class="menu_list file_menu">
+  <li>
+    <a href="{{noaction}}" class="sub_menu_item" target="_blank">{{ i18n "New" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+      <ul class="menu_list">
+        <li><a href="#new/GoogleDrive" {{{ m-action-n-close }}}>Google Drive</a></li>
+        <li><a href="#new/Dropbox" {{{ m-action-n-close }}}>Dropbox</a></li>
+      </ul>
+    </div>
+  </li>
+  
+  <li>
+    <a href="{{noaction}}" class="menu-file-open sub_menu_item" target="_blank">{{ i18n "Open" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+      {{> mfile-open }}
+    </div>
+  </li>
+
+  <li>
+    <a href="{{noaction}}" class="menu-file-favorites sub_menu_item" target="_blank">{{ i18n "Favorites" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      <a href="{{noaction}}" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+      <ul class="menu_list favorites"></ul>
+    </div>
+  </li>
+
+  <li>
+    <a href="{{noaction}}" class="sub_menu_item" target="_blank">{{ i18n "Select syntax" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
+    <div class="menu_content">
+      {{> mfile-select-syntax }}
+    </div>
+  </li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.save()" }}} >{{ i18n "Save" }}</a></li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.open_share_modal()" }}}>{{ i18n "Share" }}</a></li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.print()" }}}>{{ i18n "Print" }}</a></li>
+  
+  <li>
+    <a href="{{noaction}};" {{{ m-action-n-close "editor_controller.open_search()" }}}>{{ i18n "Search" }} (Ctrl-F)</a>
+  </li>
+  
+  <li>
+    <a href="{{noaction}};" {{{ m-action-n-close "editor_controller.open_replace()" }}}>
+      {{ i18n "Search & replace" }}
+    </a>
+  </li>
+  
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.show_file_info()" }}}>{{ i18n "Show file info" }}</a></li>
+
+  <li><a href="/faq">{{ i18n "Help (FAQ)" }}</a></li>
+
+  <li><a href="{{noaction}};" {{{ m-action-n-close "editor_controller.restart_app()" }}}>{{ i18n "Restart app" }}</a></li>
+</ul>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-advanced-select-language" type="text/x-handlebars">
+<ul class="menu_list back_btn_padded">
+  <div class="text-center"><a href="javascript:void(0)" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a></div>
+  <li><a href="javascript:void(0)" onclick="javascript:editor_controller.select_locale('auto')" data-locale="auto">Auto detected</a></li>
+  {{#each locales}}
+  <li><a href="javascript:void(0)" onclick="javascript:editor_controller.select_locale('{{@key}}')">{{this}}</a></li>
+  {{/each}}
+</ul>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-advanced-select-theme" type="text/x-handlebars">
+<div class="row themes">
+<a href="{{noaction}}" class="menu_back themes_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+  {{#each themes}}
+    {{#if (eq (math @index "%" 12) 0) }}
+    <div class="col-md-4 theme-col-{{ math @index "/" 12 }}">
+      <div class="theme_choice_column btn-group-vertical"> 
+    {{/if}}
+      {{#if (eq this "dummy")}}
+        <a href="{{noaction}};" class="btn-dummy">{{this.theme_display_name}}</a>
+      {{else}}
+        <a href="{{noaction}};" class="btn btn-default btn_theme theme_{{this.theme_name}}"{{{ m-action-n-close (concat "editor_controller.select_theme('" this.theme_name "')") }}}>{{this.theme_display_name}}</a>
+      {{/if}}
+    {{#if (eq @index (math ../themes.length "-" 1 ))}}
+        </div>
+      </div>
+    {{else}}
+      {{#if (eq (math @index "%" 12) 11) }}
+        </div>
+      </div>
+      {{/if}}
+    {{/if}}
+  {{/each}}
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-basic-options" type="text/x-handlebars">
+<div class="row">
+  <div class="col-md-3">
+    {{ i18n "Editor mode" }} :
+    <select class="keybinding_select form-control">
+      <option value="normal">{{ i18n "Normal" }}</option>
+      <option value="vim">{{ i18n "vim" }}</option>
+      <option value="emacs">{{ i18n "Emacs" }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    {{ i18n "Tab size" }} : 
+    <select class="tab_size_select form-control">
+      <option value="2">{{ i18n "2" }}</option>
+      <option value="3">{{ i18n "3" }}</option>
+      <option value="4">{{ i18n "4" }}</option>
+      <option value="5">{{ i18n "5" }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    {{ i18n "Font size" }} :
+    <select class="font_size_select form-control">
+      <option value="0.5em">{{ i18n "Small" }}</option>
+      <option value="1em">{{ i18n "Normal" }}</option>
+      <option value="1.5em">{{ i18n "Large" }}</option>
+      <option value="2em">{{ i18n "X-large" }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    <div class="togglebutton">
+      <label>
+        {{ i18n "Word wrapping" }} : <input type="checkbox" class="word_wrap_checkbox">
+      </label>
+    </div>
+  </div>
+
+</div>
+</script>
+
+
+<script class="template-partial" data-partial-name="moptions-accounts" type="text/x-handlebars">
+<a href="javascript:void(0)" class="menu_back themes_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
+<ul class="menu_list back_btn_padded">
+  <li>
+    <h5 class="menu_header">Google Drive</h5>
+  </li>
+  <li>
+    <a href="{{noaction}}" {{{ m-action-n-close "window.open('https://accounts.google.com/AddSession','1461625036769','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0')" }}}>{{ i18n "Add account" }}</a>
+  </li>
+  <li>
+    <a href="{{noaction}}" {{{ m-action-n-close "oauth_controller.switch_user()" }}}>{{ i18n "Switch account" }}</a>
+  </li>
+  <li>
+    <h5 class="menu_header">Dropbox</h5>
+  </li>
+  <li>
+    <a href="{{noaction}}" {{{ m-action-n-close "dropbox_oauth_controller.test(function(){new Popup({message : i18n('Already connected !')})})" }}}>{{ i18n "Connect account" }}</a>
+  </li>
+</ul>
 </script>
 
 
@@ -344,7 +605,7 @@
 
 <script id="about" class="template-partial" type="text/x-handlebars-template">
   <p><b>{{ i18n "Version" }} : </b>v5.1.2</p>
-  <p><b>{{ i18n "Build ID" }} : </b>ea06c7</p>
+  <p><b>{{ i18n "Build ID" }} : </b>9fd4e3</p>
   {{#if global_context.application.dev_mode}}
   <p><b>Running development snapshot</b> <a href="javascript:void(0)" onclick="javascript:application.stop_dev_mode()">use stable version</a></p>
   {{else}}
@@ -354,27 +615,33 @@
 
 
 <script class="template-partial" data-partial-name="major_notice_modal" type="text/x-handlebars">
-<div class="modal fade" id="major_notice_modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="false" data-version="2">
+<div class="modal fade" id="major_notice_modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="false" data-version="3">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-body">
-      <h2>Welcome to Anyfile Notepad 4.0</h2>
-      <h3>This version introduces Dropbox support !</h3>
-
-      <h4>To get started :</h4>
-      <ul>
-        <li>Click 'File' -> 'Connect Dropbox'</li>
-        <li>Login with your Dropbox credentials</li>
-        <li>You can now create and open file from your Dropbox from the app.</li>
-        <li><b>NOTE: Dropbox doesn't support opening a file directly from the Dropbox interface. Nothing I can do about it...</b></li>
-      </ul>
-
-      <h4 style="text-align:center" class="alert alert-warning"> If you encounter any bugs or have any question (or maybe want to say thank you), write a message on our Google+ community </h4>
-
+        <h4>This version introduces changes to the menus.</h4>
+        <div class="mobile-show">
+          <h5>Overview of the changes:</h5>
+          <ul>
+            <li>The Open menu and the favorites have been moved to the File menu.</li>
+            <li>The syntax selection is now in the File menu</li>
+            <li>There is a new Accounts sub menu in the Options to manage the Google and Dropbox accounts.</li>
+            <li>There is a new Advanced sub menu in the Options to manage the language and theme used by the app</li>
+          </li>
+        </div>
+        <div class="non-mobile-show">
+          <h4>We suggest you take a quick tour to visualize the changes</h4>
+        </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="agree_major_notice">OK! Let's go</button>
+        <div class="non-mobile-show">
+          <button type="button" class="btn btn-primary agree_major_notice">Skip the tour</button>
+          <button type="button" onclick="javascript:application.tour_controller.menu_change_tour()" class="btn btn-primary agree_major_notice">OK! Let's go</button>
+        </div>
+        <div class="mobile-show">
+          <button type="button" class="btn btn-primary agree_major_notice">OK! Let's go</button>
+        </div>
       </div>
     </div>
   </div>
@@ -442,7 +709,7 @@
   </script>
 
   <div id="print_content" style="display:none">
-  <link rel="stylesheet" type="text/css" href="/assets/application-0527fbd326984ccac5128738feb077ee96b40dec.css" media="all">
+  <link rel="stylesheet" type="text/css" href="/assets/application-e06b3f19080163649c96cd8cfcd950d7a8c9987a.css" media="all">
 
   <div class="print_menu print_hide">
     <a id="print" href="#print" class="btn btn-primary">Print</a>
@@ -493,214 +760,30 @@
     <ul class="nav navbar-nav">
       <!-- FILE/* -->
       <li>
-        <a href="javascript:void(0)" class="menu_item">{{ i18n "File" }}</a>
-
+        <a href="javascript:void(0)" id="file_menu_btn" class="menu_item">{{ i18n "File" }}</a>
         <div class="menu_content">
-          <ul class="menu_list">
-            <li>
-              <a href="javascript:void(0)" class="sub_menu_item" target="_blank">{{ i18n "New" }}<span class="glyphicon glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a>
-              <div class="menu_content">
-                <a href="javascript:void(0)" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
-                <ul class="menu_list">
-                  <li><a href="#new/GoogleDrive" onclick="menu_controller.hide_menu();">Google Drive</a></li>
-                  <li><a href="#new/Dropbox" onclick="menu_controller.hide_menu();">Dropbox</a></li>
-                </ul>
-              </div>
-            </li>
-
-            <li><a href="javascript:void(0);" onclick="javascript:editor_controller.save();menu_controller.hide_menu();" >{{ i18n "Save" }}</a></li>
-
-            <li><a href="javascript:void(0);" onclick="javascript:editor_controller.open_share_modal();menu_controller.hide_menu();" >{{ i18n "Share" }}</a></li>
-
-            <li><a href="javascript:void(0);" onclick="javascript:editor_controller.print();menu_controller.hide_menu()" >{{ i18n "Print" }}</a></li>
-            
-            <li>
-              <a href="javascript:void(0);" onclick="javascript:editor_controller.open_search();menu_controller.hide_menu()">
-                {{ i18n "Search" }} (Ctrl-F)
-              </a>
-            </li>
-            
-            <li>
-              <a href="javascript:void(0);" onclick="javascript:editor_controller.open_replace();menu_controller.hide_menu()">
-                {{ i18n "Search & replace" }}
-              </a>
-            </li>
-            
-            <li><a href="javascript:void(0);" onclick="javascript:editor_controller.show_file_info();menu_controller.hide_menu()" >{{ i18n "Show file info" }}</a></li>
-
-            <li><a href="javascript:void(0);" onclick="javascript:user_preferences.reset();menu_controller.hide_menu();new Popup({ message : i18n('You should now restart the app to fully flush your preferences.'), callback : function(result) {if(result) editor_controller.restart_app()}, confirm : true, confirm_btn : i18n('Restart now'), cancel_btn : i18n('Restart later')});">{{ i18n "Reset preferences" }}</a></li>
-
-            <li><a href="javascript:void(0);" onclick="javascript:menu_controller.hide_menu();dropbox_oauth_controller.test(function(){new Popup({message : i18n('Already connected !')})})">{{ i18n "Connect Dropbox" }}</a></li>
-
-            <li><a href="/faq">{{ i18n "Help (FAQ)" }}</a></li>
-
-            <li><a href="/">{{ i18n "App home page" }}</a></li>
-
-            <li><a href="javascript:void(0);" onclick="javascript:editor_controller.restart_app()">{{ i18n "Restart app" }}</a></li>
-          </ul>
+          {{> mfile }}
         </div>
       </li>
       <!-- */FILE -->
 
-      <li>
-        <a href="javascript:void(0)" class="menu_item">{{ i18n "Open" }}</a>
-        <div class="menu_content">
-          {{> file_explorer }}
-        </div>
-      </li>
-
-      <li>
-        <a href="javascript:void(0)" class="menu_item">{{ i18n "Favorites" }}</a>
-        <div class="menu_content">
-          <ul class="menu_list favorites">
-          </ul>
-        </div>
-      </li>
-
       <!-- OPTIONS/* -->
       <li>
-        <a href="javascript:void(0)" class="menu_item" >{{ i18n "Options" }}</a>
+        <a href="javascript:void(0)" id="options_menu_btn" class="menu_item" >{{ i18n "Options" }}</a>
         <div class="menu_content" data-show-callback="editor_controller.options_show_callback()">
-          <!-- OPTIONS CONTENT/* -->
-          <div class="options">
-
-            <div class="row">
-
-              <div class="col-md-3">
-                {{ i18n "Editor mode" }} :
-                <select class="keybinding_select form-control">
-                  <option value="normal">{{ i18n "Normal" }}</option>
-                  <option value="vim">{{ i18n "vim" }}</option>
-                  <option value="emacs">{{ i18n "Emacs" }}</option>
-                </select>
-              </div>
-
-              <div class="col-md-3">
-                {{ i18n "Tab size" }} : 
-                <select class="tab_size_select form-control">
-                  <option value="2">{{ i18n "2" }}</option>
-                  <option value="3">{{ i18n "3" }}</option>
-                  <option value="4">{{ i18n "4" }}</option>
-                  <option value="5">{{ i18n "5" }}</option>
-                </select>
-              </div>
-
-              <div class="col-md-3">
-                {{ i18n "Font size" }} :
-                <select class="font_size_select form-control">
-                  <option value="0.5em">{{ i18n "Small" }}</option>
-                  <option value="1em">{{ i18n "Normal" }}</option>
-                  <option value="1.5em">{{ i18n "Large" }}</option>
-                  <option value="2em">{{ i18n "X-large" }}</option>
-                </select>
-              </div>
-
-              <div class="col-md-3">
-                <div class="togglebutton">
-                  <label>
-                    {{ i18n "Word wrapping" }} : <input type="checkbox" class="word_wrap_checkbox">
-                  </label>
-                </div>
-              </div>
-
-            </div>
-
-            <div class="row">
-              <div class="col-md-4">
-                <a class="sub_menu_item btn btn-primary" href="javascript:void(0)">{{ i18n "Select syntax" }}</a>
-                  <div class="menu_content">
-                      <div class="syntaxes">
-                        <a href="javascript:void(0)" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
-                        <ul class="menu_list">
-                          {{#each grouped_syntaxes}}
-                              <li>
-                              <a href="javascript:void(0);" class="sub_menu_item" >{{@key}}</a>
-                              <div class="menu_content">
-                                <div class="syntaxes">
-                                  <a href="javascript:void(0)" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
-                                   <ul class="menu_list">
-                                      {{#each this}}
-                                        <li>
-                                          <a href="javascript:void(0);" class="syntax_button syntax_{{this.ace_js_mode}} %>" onclick="menu_controller.hide_menu();editor_controller.set_syntax_mode('{{this.ace_js_mode}}',true);">
-                                            {{this.display_name}}
-                                          </a>                  
-                                        </li>
-                                      {{/each}}
-                                  </ul>
-                                </div>
-                               
-                              </div>
-                            </li>
-                          {{/each}}
-                        </ul>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="col-md-4">
-                <a class="sub_menu_item btn btn-primary" href="javascript:void(0)">{{ i18n "Select theme" }}</a>
-                <div class="menu_content">
-                  <div class="row themes">
-                  <a href="javascript:void(0)" class="menu_back themes_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a>
-                    {{#each themes}}
-                      {{#if (eq (math @index "%" 12) 0) }}
-                      <div class="col-md-4 theme-col-{{ math @index "/" 12 }}">
-                        <div class="theme_choice_column btn-group-vertical"> 
-                      {{/if}}
-                        {{#if (eq this "dummy")}}
-                          <a href="javascript:void(0);" class="btn-dummy">{{this.theme_display_name}}</a>
-                        {{else}}
-                          <a href="javascript:void(0);" class="btn btn-default btn_theme theme_{{this.theme_name}}" onclick="javascript:menu_controller.hide_menu();editor_controller.select_theme('{{this.theme_name}}')">{{this.theme_display_name}}</a>
-                        {{/if}}
-                      {{#if (eq @index (math ../themes.length "-" 1 ))}}
-                          </div>
-                        </div>
-                      {{else}}
-                        {{#if (eq (math @index "%" 12) 11) }}
-                          </div>
-                        </div>
-                        {{/if}}
-                      {{/if}}
-                    {{/each}}
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <a class="sub_menu_item btn btn-primary" href="javascript:void(0)">Select language</a>
-                <div class="menu_content">
-                  <ul class="menu_list">
-                    <div class="text-center"><a href="javascript:void(0)" class="menu_back btn btn-primary btn-fab btn-raised mdi-navigation-arrow-back"></a></div>
-                    <li><a href="javascript:void(0)" onclick="javascript:editor_controller.select_locale('auto')" data-locale="auto">Auto detected</a></li>
-                    {{#each locales}}
-                    <li><a href="javascript:void(0)" onclick="javascript:editor_controller.select_locale('{{@key}}')">{{this}}</a></li>
-                    {{/each}}
-                  </ul>
-                </div>
-              </div>
-
-
-            </div>
-
-          </div> <!-- */OPTIONS CONTENT -->
+          {{> moptions }}
         </div>
-      </li> <!-- */OPTIONS -->
-
-      <li>
-        <a href="javascript:void(0)" class="menu_item" >{{ i18n "Help" }}</a>
-        <div class="menu_content">
-          <ul class="menu_list">
-            <li><a href="javascript:void(0);" onclick="javascript:new Popup({title : 'Keyboard shortcuts', hb_partial : '#keyboard-shortcuts'});menu_controller.hide_menu();">{{ i18n "Keyboard shortcuts" }}</a></li>
-
-            <li><a href="/faq" >{{ i18n "Frequently asked questions (FAQ)" }}</a></li>
-            
-            <li><a href="http://bit.ly/afn-community">{{ i18n "Google+ Community" }}</a></li>
-
-            <li><a href="javascript:void(0);" onclick="javascript:new Popup({title : 'About this app', hb_partial : '#about'});menu_controller.hide_menu();">{{ i18n "About" }}</a></li>
-          </ul>
-        </div>
-
       </li>
+      <!-- */OPTIONS -->
+      
+      <!-- HELP/* -->
+      <li>
+        <a href="javascript:void(0)" id="help_menu_btn" class="menu_item" >{{ i18n "Help" }}</a>
+        <div class="menu_content">
+          {{> mhelp }}
+        </div>
+      </li>
+      <!-- */HELP -->
 
     </ul>
     <form id="file_title_form" class="navbar-form navbar-left" onsubmit="javascript:editor_controller.save();return false;">
@@ -731,7 +814,7 @@
       {{ i18n "Logged in as" }}
       <span data-bind-current_user="name"></span>
       <br>
-      <a style="color:blue" id="switch_user_link" href="javascript:void(0)" onclick="javascript:oauth_controller.switch_user()">{{ i18n "Switch user" }}</a>
+      <a style="color:blue" href="javascript:void(0)" onclick="javascript:oauth_controller.switch_user()">{{ i18n "Switch user" }}</a>
       |
       <a style="color:blue" href="https://accounts.google.com/AddSession" onclick="javascript:void window.open('https://accounts.google.com/AddSession','1461625036769','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0');return false;">{{ i18n "Add account" }}</a>
   </span>
@@ -1650,8 +1733,8 @@
   var partials = $('.template-partial');
   var context = {
     locales : locales,
-    grouped_syntaxes : {"A B ":[{"updated_at":"2016-07-21T04:33:49.55028507+02:00","display_name":"Ada","ace_js_mode":"ada","id":"au8393dd7n70ed44hf2g","created_at":"2016-07-21T04:33:49.550282403+02:00","_etag":"438b897c673d9482a533b0a405d96677"},{"created_at":"2016-07-21T04:33:49.597335998+02:00","_etag":"4a82549de1375f548e5a3d29621980e6","display_name":"Advanced Business Application Programming","updated_at":"2016-07-21T04:33:49.597338507+02:00","id":"au8393dd7n70ed44hf30","ace_js_mode":"abap"},{"_etag":"fc68cec9cb6cafb4451cc0cec26b0ef3","created_at":"2016-07-21T04:33:49.685308884+02:00","ace_js_mode":"asciidoc","id":"au8393dd7n70ed44hf40","updated_at":"2016-07-21T04:33:49.685311739+02:00","display_name":"AsciiDoc"},{"created_at":"2016-07-21T04:33:49.502605746+02:00","_etag":"746cec6457ab30e338fdf628573079f1","display_name":"ActionScript","updated_at":"2016-07-21T04:33:49.502608904+02:00","id":"au8393dd7n70ed44hf20","ace_js_mode":"actionscript"},{"created_at":"2016-07-21T04:33:49.37779571+02:00","_etag":"621e51a0f8bc1d73fd2e0a7d052b3423","updated_at":"2016-07-21T04:33:49.37785325+02:00","display_name":"ABC","ace_js_mode":"abc","id":"au8393dd7n70ed44hf1g"},{"_etag":"f0e79310acaa2028f4e04dec66bc7bb1","created_at":"2016-07-21T04:33:49.729229378+02:00","ace_js_mode":"assembly","id":"au8393dd7n70ed44hf4g","updated_at":"2016-07-21T04:33:49.729232383+02:00","display_name":"Assembly"},{"created_at":"2016-07-21T04:33:49.63836722+02:00","_etag":"9ee6055dc3e4b6c8330e5ee7346b1ce1","updated_at":"2016-07-21T04:33:49.638370861+02:00","display_name":"Apache conf","ace_js_mode":"apache_conf","id":"au8393dd7n70ed44hf3g"},{"created_at":"2016-07-21T04:33:49.780724723+02:00","_etag":"7eca1c5db045597610c5a8588c203504","updated_at":"2016-07-21T04:33:49.780727572+02:00","display_name":"AutoHotkey","ace_js_mode":"autohotkey","id":"au8393dd7n70ed44hf50"},{"ace_js_mode":"batchfile","id":"au8393dd7n70ed44hf5g","updated_at":"2016-07-21T04:33:49.826639751+02:00","display_name":"Batch file","_etag":"89fb621bda548238da4ca81bf74ffddb","created_at":"2016-07-21T04:33:49.826635235+02:00"}],"C ":[{"_etag":"b397bb51dbb8bf8f107356cc61986813","created_at":"2016-07-21T04:33:50.064675721+02:00","ace_js_mode":"css","id":"au8393ld7n70ed44hf7g","updated_at":"2016-07-21T04:33:50.064601577+02:00","display_name":"CSS"},{"created_at":"2016-07-21T04:33:50.016807808+02:00","_etag":"bd985c8f8b285bb4b520b0f4765c6231","updated_at":"2016-07-21T04:33:50.016811236+02:00","display_name":"C9 Search","ace_js_mode":"c9search","id":"au8393ld7n70ed44hf70"},{"created_at":"2016-07-21T04:33:50.164406927+02:00","_etag":"e621eacf7a0b0d60b5a3b9849e5e5fda","updated_at":"2016-07-21T04:33:50.164411212+02:00","display_name":"Clojure","ace_js_mode":"clojure","id":"au8393ld7n70ed44hf8g"},{"created_at":"2016-07-21T04:33:49.92426086+02:00","_etag":"1b0e6bd5707110756c5ff92f7c7330dc","display_name":"C#","updated_at":"2016-07-21T04:33:49.924200081+02:00","id":"au8393dd7n70ed44hf6g","ace_js_mode":"csharp"},{"_etag":"72552a478d25218189238d066e6f655f","created_at":"2016-07-21T04:33:50.478618297+02:00","ace_js_mode":"coldfusion","id":"au8393ld7n70ed44hfa0","updated_at":"2016-07-21T04:33:50.47862145+02:00","display_name":"ColdFusion"},{"updated_at":"2016-07-21T04:33:50.353460104+02:00","display_name":"Coffeescript","ace_js_mode":"coffee","id":"au8393ld7n70ed44hf9g","created_at":"2016-07-21T04:33:50.35345636+02:00","_etag":"64f7e47773ea21f5ee614ac1e42a08be"},{"created_at":"2016-07-21T04:33:50.117043553+02:00","_etag":"2cab4b1d09fb9a1d583e3df6f0b0f7d4","display_name":"Cirry","updated_at":"2016-07-21T04:33:50.117046503+02:00","id":"au8393ld7n70ed44hf80","ace_js_mode":"cirry"},{"_etag":"456a80eb4b7c20b08a0cd35ac1c6217c","created_at":"2016-07-21T04:33:50.224937811+02:00","id":"au8393ld7n70ed44hf90","ace_js_mode":"cobol","display_name":"Cobol","updated_at":"2016-07-21T04:33:50.224940952+02:00"},{"created_at":"2016-07-21T04:33:49.877005385+02:00","_etag":"91e713e4c083c104628732d513186eb3","updated_at":"2016-07-21T04:33:49.877008515+02:00","display_name":"C / C++","ace_js_mode":"c_cpp","id":"au8393dd7n70ed44hf60"},{"id":"au8393ld7n70ed44hfag","ace_js_mode":"curly","display_name":"Curly","updated_at":"2016-07-21T04:33:50.555796125+02:00","_etag":"070d31f2be8034c29e90c6bf167ba1d9","created_at":"2016-07-21T04:33:50.555793023+02:00"}],"D E F G ":[{"ace_js_mode":"d","id":"au8393ld7n70ed44hfb0","updated_at":"2016-07-21T04:33:50.618885934+02:00","display_name":"D Programming","_etag":"e45277381aadd9ca080bffe26823b009","created_at":"2016-07-21T04:33:50.618883005+02:00"},{"display_name":"Django","updated_at":"2016-07-21T04:33:50.832931949+02:00","id":"au8393ld7n70ed44hfcg","ace_js_mode":"django","created_at":"2016-07-21T04:33:50.832928707+02:00","_etag":"fec00aa71025dc930e9dabf38b1fab79"},{"_etag":"541718e7f5014023c758fe27fb9bca85","created_at":"2016-07-21T04:33:50.956764533+02:00","ace_js_mode":"dot","id":"au8393ld7n70ed44hfd0","updated_at":"2016-07-21T04:33:50.956768703+02:00","display_name":"DotNet"},{"created_at":"2016-07-21T04:33:50.694410299+02:00","_etag":"7903436922ef772982d0aa167cf38158","display_name":"Dart","updated_at":"2016-07-21T04:33:50.694413644+02:00","id":"au8393ld7n70ed44hfbg","ace_js_mode":"dart"},{"created_at":"2016-07-21T04:33:50.748843918+02:00","_etag":"e18da8f5d50edbb1ad33c6ed6327bfc6","display_name":"Diff","updated_at":"2016-07-21T04:33:50.748847493+02:00","id":"au8393ld7n70ed44hfc0","ace_js_mode":"diff"},{"created_at":"2016-07-21T04:33:51.199683088+02:00","_etag":"ba53984eff9b4c80a07235cbfeb4c0c9","display_name":"Erlang","updated_at":"2016-07-21T04:33:51.199685753+02:00","id":"au8393td7n70ed44hfe0","ace_js_mode":"erlang"},{"display_name":"EJS","updated_at":"2016-07-21T04:33:51.139598734+02:00","id":"au8393td7n70ed44hfdg","ace_js_mode":"ejs","created_at":"2016-07-21T04:33:51.139596149+02:00","_etag":"a74ae178c432c1dbe1ed613a5b6e4240"},{"created_at":"2016-07-21T04:33:51.254875262+02:00","_etag":"d478587acf3b7c08b8ee5c8996c7c00e","display_name":"FORTH","updated_at":"2016-07-21T04:33:51.254878435+02:00","id":"au8393td7n70ed44hfeg","ace_js_mode":"forth"},{"_etag":"a9b9996c6de519022a1baabe10c75498","created_at":"2016-07-21T04:33:51.444947423+02:00","id":"au8393td7n70ed44hffg","ace_js_mode":"golang","display_name":"Golang","updated_at":"2016-07-21T04:33:51.444950988+02:00"},{"display_name":"Groovy","updated_at":"2016-07-21T04:33:51.526518159+02:00","id":"au8393td7n70ed44hfg0","ace_js_mode":"groovy","created_at":"2016-07-21T04:33:51.52653962+02:00","_etag":"050d6b9f2857606301a34ed745615442"},{"display_name":"Gherkin","updated_at":"2016-07-21T04:33:51.381845969+02:00","id":"au8393td7n70ed44hff0","ace_js_mode":"gherkin","created_at":"2016-07-21T04:33:51.381842623+02:00","_etag":"3c1998b99871a97779990ad3ad05cc37"}],"H I ":[{"created_at":"2016-07-21T04:33:51.839600917+02:00","_etag":"2c6a7bc675a5b3642687f2306a9487a7","display_name":"HTML","updated_at":"2016-07-21T04:33:51.839603827+02:00","id":"au8393td7n70ed44hfh0","ace_js_mode":"html"},{"id":"au83945d7n70ed44hfi0","ace_js_mode":"handlebars","display_name":"Handlebars","updated_at":"2016-07-21T04:33:52.02845677+02:00","_etag":"660ee287ade17f172a835f32d15c517b","created_at":"2016-07-21T04:33:52.028453318+02:00"},{"_etag":"749014e3a7eab40b51018710118c7e59","created_at":"2016-07-21T04:33:51.942861928+02:00","id":"au8393td7n70ed44hfhg","ace_js_mode":"html_ruby","display_name":"HTML ERB","updated_at":"2016-07-21T04:33:51.942865081+02:00"},{"ace_js_mode":"haxe","id":"au83945d7n70ed44hfj0","updated_at":"2016-07-21T04:33:52.162945851+02:00","display_name":"Haxe","_etag":"f99556f8530b169d8da52715c2f6360f","created_at":"2016-07-21T04:33:52.162942534+02:00"},{"ace_js_mode":"haskell","id":"au83945d7n70ed44hfig","updated_at":"2016-07-21T04:33:52.099060298+02:00","display_name":"Haskell","_etag":"0e5d10ba82775e1d9781daf3024ba43d","created_at":"2016-07-21T04:33:52.099083519+02:00"},{"_etag":"a7239ecb777e16286c92257b627017c7","created_at":"2016-07-21T04:33:51.632711495+02:00","ace_js_mode":"haml","id":"au8393td7n70ed44hfgg","updated_at":"2016-07-21T04:33:51.632714082+02:00","display_name":"HAML"},{"updated_at":"2016-07-21T04:33:52.403178373+02:00","display_name":"INI","ace_js_mode":"ini","id":"au83945d7n70ed44hfjg","created_at":"2016-07-21T04:33:52.403175069+02:00","_etag":"2ddd399cee8cf18256550324099c6638"}],"J K ":[{"id":"au83945d7n70ed44hfng","ace_js_mode":"javascript","display_name":"Javascript","updated_at":"2016-07-21T04:33:52.990359597+02:00","_etag":"a7f79efa9d1a869c8b30bc63f5d15074","created_at":"2016-07-21T04:33:52.990356773+02:00"},{"display_name":"Java","updated_at":"2016-07-21T04:33:52.914885584+02:00","id":"au83945d7n70ed44hfn0","ace_js_mode":"java","created_at":"2016-07-21T04:33:52.914882698+02:00","_etag":"bcf51bd457fdc5c6b1168dc007b55d98"},{"created_at":"2016-07-21T04:33:52.549346336+02:00","_etag":"358e6f83d9d66e21ca25c1eab8c57af8","updated_at":"2016-07-21T04:33:52.549349509+02:00","display_name":"JSON","ace_js_mode":"json","id":"au83945d7n70ed44hfkg"},{"created_at":"2016-07-21T04:33:52.695506168+02:00","_etag":"627bf3510d66a73566fdea11ac03d5b2","updated_at":"2016-07-21T04:33:52.695510364+02:00","display_name":"JSP","ace_js_mode":"jsp","id":"au83945d7n70ed44hflg"},{"created_at":"2016-07-21T04:33:52.629497495+02:00","_etag":"82d6302e30647d8c61b2b405a3be43f1","display_name":"JSON Query Language","updated_at":"2016-07-21T04:33:52.629501207+02:00","id":"au83945d7n70ed44hfl0","ace_js_mode":"jsoniq"},{"updated_at":"2016-07-21T04:33:52.479479247+02:00","display_name":"JACK","ace_js_mode":"jack","id":"au83945d7n70ed44hfk0","created_at":"2016-07-21T04:33:52.479476451+02:00","_etag":"65e9e3a18b17ff917a723ad7d2653be1"},{"_etag":"8c75484deeea19cb26afae6dbd7e11e6","created_at":"2016-07-21T04:33:52.771046898+02:00","id":"au83945d7n70ed44hfm0","ace_js_mode":"jsx","display_name":"JSX","updated_at":"2016-07-21T04:33:52.77104962+02:00"},{"ace_js_mode":"julia","id":"au8394dd7n70ed44hfo0","updated_at":"2016-07-21T04:33:53.151454617+02:00","display_name":"Julia","_etag":"42a1a604abe1cc049570ac9585066dc8","created_at":"2016-07-21T04:33:53.151452047+02:00"},{"_etag":"a9413b92f73c11cdf866ce5b628c1fef","created_at":"2016-07-21T04:33:52.850677421+02:00","ace_js_mode":"jade","id":"au83945d7n70ed44hfmg","updated_at":"2016-07-21T04:33:52.85065892+02:00","display_name":"Jade"}],"L ":[{"_etag":"c37160bc8d1173063101e6a3cd059111","created_at":"2016-07-21T04:33:54.184467542+02:00","id":"au8394ld7n70ed44hfsg","ace_js_mode":"lua","display_name":"Lua","updated_at":"2016-07-21T04:33:54.184470926+02:00"},{"created_at":"2016-07-21T04:33:53.999552134+02:00","_etag":"c4a2ed37ecd3d1801c5c116ba1833b98","updated_at":"2016-07-21T04:33:53.999491756+02:00","display_name":"LiveScript","ace_js_mode":"livescript","id":"au8394dd7n70ed44hfrg"},{"id":"au8394ld7n70ed44hft0","ace_js_mode":"luapage","display_name":"Lua page","updated_at":"2016-07-21T04:33:54.351663245+02:00","_etag":"8a64c0f9416fdf8846081549ec434adf","created_at":"2016-07-21T04:33:54.351659549+02:00"},{"updated_at":"2016-07-21T04:33:54.079098108+02:00","display_name":"LogiQL","ace_js_mode":"logiql","id":"au8394ld7n70ed44hfs0","created_at":"2016-07-21T04:33:54.079094432+02:00","_etag":"fbb78fdb52168e593b60069e09196c36"},{"created_at":"2016-07-21T04:33:53.811155071+02:00","_etag":"a90c70fd60c8fd116e90002de5e76ee9","display_name":"Liquid","updated_at":"2016-07-21T04:33:53.811203888+02:00","id":"au8394dd7n70ed44hfqg","ace_js_mode":"liquid"},{"ace_js_mode":"less","id":"au8394dd7n70ed44hfog","updated_at":"2016-07-21T04:33:53.275051107+02:00","display_name":"LESS","_etag":"f4cfcd4235dac71db09c82d171d53832","created_at":"2016-07-21T04:33:53.27504783+02:00"},{"_etag":"b816b7676145d9f296200ba319065b75","created_at":"2016-07-21T04:33:53.364920083+02:00","ace_js_mode":"latex","id":"au8394dd7n70ed44hfp0","updated_at":"2016-07-21T04:33:53.364923979+02:00","display_name":"Latex"},{"_etag":"b6e58ed0b74e82b4af6bf2238cefad44","created_at":"2016-07-21T04:33:53.519493112+02:00","id":"au8394dd7n70ed44hfpg","ace_js_mode":"lean","display_name":"Lean","updated_at":"2016-07-21T04:33:53.519431416+02:00"},{"created_at":"2016-07-21T04:33:53.908007108+02:00","_etag":"2d6ba4daa7eb841c4f62d69c6f73c019","updated_at":"2016-07-21T04:33:53.908010838+02:00","display_name":"Lisp","ace_js_mode":"lisp","id":"au8394dd7n70ed44hfr0"},{"created_at":"2016-07-21T04:33:53.585072546+02:00","_etag":"fb1a6c21ff11384f3e4865c3b8a38070","display_name":"Linden Scripting","updated_at":"2016-07-21T04:33:53.58505441+02:00","id":"au8394dd7n70ed44hfq0","ace_js_mode":"lsl"},{"display_name":"Lucene","updated_at":"2016-07-21T04:33:54.432760991+02:00","id":"au8394ld7n70ed44hftg","ace_js_mode":"lucene","created_at":"2016-07-21T04:33:54.43275829+02:00","_etag":"888127e0da23c6d4614a732568048ba6"}],"M N O ":[{"display_name":"Markdown","updated_at":"2016-07-21T04:33:55.067844358+02:00","id":"au8394td7n70ed44hg00","ace_js_mode":"markdown","created_at":"2016-07-21T04:33:55.067841177+02:00","_etag":"5606730ef7211597b4b737fd0cc05120"},{"created_at":"2016-07-21T04:33:54.890981127+02:00","_etag":"ca25db3b8810fa8267da59496958d8f5","display_name":"Makefile","updated_at":"2016-07-21T04:33:54.890984419+02:00","id":"au8394ld7n70ed44hfvg","ace_js_mode":"makefile"},{"created_at":"2016-07-21T04:33:54.590359108+02:00","_etag":"10dc0fe0e62f5357db010d6a59ff97a2","display_name":"MEL","updated_at":"2016-07-21T04:33:54.590362223+02:00","id":"au8394ld7n70ed44hfug","ace_js_mode":"mel"},{"created_at":"2016-07-21T04:33:54.507317586+02:00","_etag":"5f31eb000f5af9ff6088984326e3059b","display_name":"MATLAB","updated_at":"2016-07-21T04:33:54.507320773+02:00","id":"au8394ld7n70ed44hfu0","ace_js_mode":"matlab"},{"created_at":"2016-07-21T04:33:54.756053642+02:00","_etag":"0fb2d1c68096c05a4b2399903b3e804f","display_name":"MUSHCode","updated_at":"2016-07-21T04:33:54.755984173+02:00","id":"au8394ld7n70ed44hfv0","ace_js_mode":"mushcode"},{"display_name":"MySQL","updated_at":"2016-07-21T04:33:55.281800682+02:00","id":"au8394td7n70ed44hg10","ace_js_mode":"mysql","created_at":"2016-07-21T04:33:55.281797349+02:00","_etag":"0fdc9ddf5d7d7d61c36e25d26cdd2afb"},{"_etag":"dba23f8658d8cdbaaf1c09616fed6404","created_at":"2016-07-21T04:33:55.194108205+02:00","ace_js_mode":"mask","id":"au8394td7n70ed44hg0g","updated_at":"2016-07-21T04:33:55.194112351+02:00","display_name":"Mask"},{"created_at":"2016-07-21T04:33:55.556665227+02:00","_etag":"2de40cb5e5876641b78caa72e3c1fac3","updated_at":"2016-07-21T04:33:55.55664068+02:00","display_name":"Nix","ace_js_mode":"nix","id":"au8394td7n70ed44hg1g"},{"updated_at":"2016-07-21T04:33:55.841788185+02:00","display_name":"OpenGL Shading Language","ace_js_mode":"glsl","id":"au8394td7n70ed44hg30","created_at":"2016-07-21T04:33:55.841739265+02:00","_etag":"3c99cce8679c35e2f937e8dfe339b20b"},{"created_at":"2016-07-21T04:33:55.755624284+02:00","_etag":"a09e3a8e83b471b8b72717f700662f4d","updated_at":"2016-07-21T04:33:55.755627656+02:00","display_name":"Objective C","ace_js_mode":"objectivec","id":"au8394td7n70ed44hg2g"},{"_etag":"ba9c80dd63f27e2fbb9872be38997887","created_at":"2016-07-21T04:33:55.65820079+02:00","id":"au8394td7n70ed44hg20","ace_js_mode":"ocaml","display_name":"OCaml","updated_at":"2016-07-21T04:33:55.658203465+02:00"}],"P Q R ":[{"id":"au83955d7n70ed44hg6g","ace_js_mode":"powershell","display_name":"Powershell","updated_at":"2016-07-21T04:33:56.609625293+02:00","_etag":"c460c888907c1a91c539c7415ad7cda8","created_at":"2016-07-21T04:33:56.609622041+02:00"},{"display_name":"Perl","updated_at":"2016-07-21T04:33:56.405771599+02:00","id":"au83955d7n70ed44hg5g","ace_js_mode":"perl","created_at":"2016-07-21T04:33:56.405768564+02:00","_etag":"5e495ef53716fab43c5a368cb267546d"},{"ace_js_mode":"prolog","id":"au83955d7n70ed44hg70","updated_at":"2016-07-21T04:33:56.756917667+02:00","display_name":"Prolog","_etag":"2c119d2993da7d725b3bfe6a42a1f876","created_at":"2016-07-21T04:33:56.756913596+02:00"},{"updated_at":"2016-07-21T04:33:56.308403107+02:00","display_name":"Pascal","ace_js_mode":"pascal","id":"au83955d7n70ed44hg50","created_at":"2016-07-21T04:33:56.308400133+02:00","_etag":"3cdf6b81bc8519086932262adaac6f5a"},{"created_at":"2016-07-21T04:33:56.00377523+02:00","_etag":"5c7648ba97e5ccd34de80e86cd13771e","updated_at":"2016-07-21T04:33:56.003778635+02:00","display_name":"PDMS PML","ace_js_mode":"pdms_pml","id":"au83955d7n70ed44hg3g"},{"display_name":"Python","updated_at":"2016-07-21T04:33:57.225904582+02:00","id":"au8395dd7n70ed44hg8g","ace_js_mode":"python","created_at":"2016-07-21T04:33:57.22590149+02:00","_etag":"114f8403bcba115a1f2aa46fa4528994"},{"updated_at":"2016-07-21T04:33:57.057359091+02:00","display_name":"Protobuf","ace_js_mode":"protobuf","id":"au8395dd7n70ed44hg80","created_at":"2016-07-21T04:33:57.057356458+02:00","_etag":"c73b58a4f982646c91dae170367f4396"},{"created_at":"2016-07-21T04:33:56.895122272+02:00","_etag":"416c6f380ca6caf91361ee567e65e9bc","display_name":"Properties","updated_at":"2016-07-21T04:33:56.895125809+02:00","id":"au83955d7n70ed44hg7g","ace_js_mode":"properties"},{"created_at":"2016-07-21T04:33:56.10059392+02:00","_etag":"b4043ffded6414f6604bbb6aad199aa8","display_name":"PGSQL","updated_at":"2016-07-21T04:33:56.10354685+02:00","id":"au83955d7n70ed44hg40","ace_js_mode":"pgsql"},{"created_at":"2016-07-21T04:33:56.190663541+02:00","_etag":"5b5a73c42aef589e96f09a867ab764c2","updated_at":"2016-07-21T04:33:56.19066674+02:00","display_name":"PHP","ace_js_mode":"php","id":"au83955d7n70ed44hg4g"},{"created_at":"2016-07-21T04:33:56.512877854+02:00","_etag":"e36fa484effd684c085949bb0b8cebd9","display_name":"Plain text","updated_at":"2016-07-21T04:33:56.512880992+02:00","id":"au83955d7n70ed44hg60","ace_js_mode":"plain_text"},{"_etag":"48f75a49afc14640cee7148763655785","created_at":"2016-07-21T04:33:57.737250963+02:00","ace_js_mode":"rhtml","id":"au8395dd7n70ed44hga0","updated_at":"2016-07-21T04:33:57.737253794+02:00","display_name":"RHTML"},{"_etag":"483bc79eeb2ca607d406e99a079e20ca","created_at":"2016-07-21T04:33:57.325529017+02:00","ace_js_mode":"r","id":"au8395dd7n70ed44hg90","updated_at":"2016-07-21T04:33:57.325531762+02:00","display_name":"R"},{"ace_js_mode":"rdoc","id":"au8395dd7n70ed44hg9g","updated_at":"2016-07-21T04:33:57.536529873+02:00","display_name":"RDoc","_etag":"0dc2b793b2c78546fba26e12b5445091","created_at":"2016-07-21T04:33:57.53647513+02:00"},{"id":"au8395dd7n70ed44hgb0","ace_js_mode":"rust","display_name":"Rust","updated_at":"2016-07-21T04:33:57.928829867+02:00","_etag":"84ca2e49d0f7b1a2a5d2119effa0a67e","created_at":"2016-07-21T04:33:57.928826613+02:00"},{"display_name":"Ruby","updated_at":"2016-07-21T04:33:57.826716221+02:00","id":"au8395dd7n70ed44hgag","ace_js_mode":"ruby","created_at":"2016-07-21T04:33:57.826712539+02:00","_etag":"1d77a53c2497ed68dd2c74f20982f08d"}],"S ":[{"_etag":"35da544cc9d37e225e0aafca4a62a8df","created_at":"2016-07-21T04:33:59.750617502+02:00","id":"au8395td7n70ed44hggg","ace_js_mode":"snippets","display_name":"Snippets","updated_at":"2016-07-21T04:33:59.750620134+02:00"},{"_etag":"902740b7d5b8e30eea74bc7eb506e5bc","created_at":"2016-07-21T04:33:59.995210637+02:00","ace_js_mode":"soy_template","id":"au8395td7n70ed44hgh0","updated_at":"2016-07-21T04:33:59.995213255+02:00","display_name":"Soy template"},{"created_at":"2016-07-21T04:33:58.318140989+02:00","_etag":"9dfe8f56cc7f52e9c82fb1a47d7dffc2","updated_at":"2016-07-21T04:33:58.318145985+02:00","display_name":"SCAD","ace_js_mode":"scad","id":"au8395ld7n70ed44hgc0"},{"ace_js_mode":"scss","id":"au8395ld7n70ed44hgcg","updated_at":"2016-07-21T04:33:58.458352801+02:00","display_name":"SCSS","_etag":"3c0dd9d1c57d237b7d36961e5d937c54","created_at":"2016-07-21T04:33:58.458349843+02:00"},{"display_name":"SVG","updated_at":"2016-07-21T04:33:58.96019251+02:00","id":"au8395ld7n70ed44hge0","ace_js_mode":"svg","created_at":"2016-07-21T04:33:58.960189359+02:00","_etag":"ce0ed5f0893ce1e2e439f2279f42dc2c"},{"created_at":"2016-07-21T04:34:00.200415144+02:00","_etag":"c3b443400d332496ce9215d621984f6a","updated_at":"2016-07-21T04:34:00.200418251+02:00","display_name":"Space","ace_js_mode":"space","id":"au83965d7n70ed44hghg"},{"updated_at":"2016-07-21T04:33:59.640552343+02:00","display_name":"Smarty","ace_js_mode":"smarty","id":"au8395td7n70ed44hgg0","created_at":"2016-07-21T04:33:59.640549957+02:00","_etag":"fe27fd0e7f32917631fd17bb6b6a1697"},{"_etag":"2753d22537d4f80da619edce6c89a410","created_at":"2016-07-21T04:33:58.666030272+02:00","ace_js_mode":"sjs","id":"au8395ld7n70ed44hgd0","updated_at":"2016-07-21T04:33:58.666034078+02:00","display_name":"SJS"},{"created_at":"2016-07-21T04:33:58.822646923+02:00","_etag":"5c2bb0d3168193972f750c4a7a7954d6","display_name":"SQL","updated_at":"2016-07-21T04:33:58.822649572+02:00","id":"au8395ld7n70ed44hgdg","ace_js_mode":"sql"},{"ace_js_mode":"stylus","id":"au83965d7n70ed44hgi0","updated_at":"2016-07-21T04:34:00.418797224+02:00","display_name":"Stylus","_etag":"73f1cea4cdb18831e2465bc2abdb1962","created_at":"2016-07-21T04:34:00.418793844+02:00"},{"updated_at":"2016-07-21T04:33:59.206867154+02:00","display_name":"Scala","ace_js_mode":"scala","id":"au8395td7n70ed44hgeg","created_at":"2016-07-21T04:33:59.206863908+02:00","_etag":"d6cf766d2865d90bd206460be9b6c026"},{"display_name":"Shell","updated_at":"2016-07-21T04:33:59.533995073+02:00","id":"au8395td7n70ed44hgfg","ace_js_mode":"sh","created_at":"2016-07-21T04:33:59.533991957+02:00","_etag":"f510409e4903d8fdc23f281555021297"},{"id":"au8395ld7n70ed44hgbg","ace_js_mode":"sass","display_name":"SASS","updated_at":"2016-07-21T04:33:58.147197335+02:00","_etag":"cd10e39dc2173ba7795c8ff9faeb12ae","created_at":"2016-07-21T04:33:58.147193661+02:00"},{"_etag":"21016e6194fabb8dde588be4e85d2214","created_at":"2016-07-21T04:33:59.411624306+02:00","id":"au8395td7n70ed44hgf0","ace_js_mode":"scheme","display_name":"Scheme","updated_at":"2016-07-21T04:33:59.411600146+02:00"}],"T ":[{"_etag":"4ae0105322870946702c7b9bf6bc05e8","created_at":"2016-07-21T04:34:00.882450662+02:00","ace_js_mode":"tex","id":"au83965d7n70ed44hgj0","updated_at":"2016-07-21T04:34:00.882494886+02:00","display_name":"TEX"},{"id":"au83965d7n70ed44hgig","ace_js_mode":"tcl","display_name":"TCL","updated_at":"2016-07-21T04:34:00.661165036+02:00","_etag":"bda05847f9a5136a88fb6b8dbf18ba09","created_at":"2016-07-21T04:34:00.661160875+02:00"},{"_etag":"f2922cc52cf85b7b0dd8c31f548f4b0e","created_at":"2016-07-21T04:34:01.213828382+02:00","ace_js_mode":"textile","id":"au8396dd7n70ed44hgk0","updated_at":"2016-07-21T04:34:01.213831938+02:00","display_name":"Textile"},{"created_at":"2016-07-21T04:34:01.059127578+02:00","_etag":"dceac57ba7d4b4cb7c7a99b9375028d0","updated_at":"2016-07-21T04:34:01.059106004+02:00","display_name":"TOML","ace_js_mode":"toml","id":"au8396dd7n70ed44hgjg"},{"_etag":"64a9ceb5d1292bc4a741fc2efa181a2c","created_at":"2016-07-21T04:34:01.48047135+02:00","id":"au8396dd7n70ed44hgkg","ace_js_mode":"twig","display_name":"Twig","updated_at":"2016-07-21T04:34:01.480475388+02:00"},{"created_at":"2016-07-21T04:34:01.79074+02:00","_etag":"fc9da9a5c2c9c270e00bf7cc46967874","display_name":"TypeScript","updated_at":"2016-07-21T04:34:01.790743257+02:00","id":"au8396dd7n70ed44hgl0","ace_js_mode":"typescript"}],"U V W X Y Z ":[{"ace_js_mode":"vbscript","id":"au8396ld7n70ed44hglg","updated_at":"2016-07-21T04:34:02.015219431+02:00","display_name":"VB Script","_etag":"f34210464d86cc767cadea4bc479ae9c","created_at":"2016-07-21T04:34:02.015250022+02:00"},{"_etag":"932b753f31b21fd26ed08ec8def02707","created_at":"2016-07-21T04:34:02.340110228+02:00","ace_js_mode":"vhdl","id":"au8396ld7n70ed44hgm0","updated_at":"2016-07-21T04:34:02.340113443+02:00","display_name":"VHDL"},{"id":"au8396ld7n70ed44hgn0","ace_js_mode":"verilog","display_name":"Verilog","updated_at":"2016-07-21T04:34:02.86730266+02:00","_etag":"bd75226b2e5170b4fcf34c5ece1c83a3","created_at":"2016-07-21T04:34:02.867299363+02:00"},{"_etag":"ab850f2154e0804bf999f67b87b8aab8","created_at":"2016-07-21T04:34:02.572017896+02:00","id":"au8396ld7n70ed44hgmg","ace_js_mode":"velocity","display_name":"Velocity","updated_at":"2016-07-21T04:34:02.572023947+02:00"},{"ace_js_mode":"xquery","id":"au8396td7n70ed44hgo0","updated_at":"2016-07-21T04:34:03.285795486+02:00","display_name":"XQuery","_etag":"6fd7715cf9df310c51fae76be2f28267","created_at":"2016-07-21T04:34:03.28579248+02:00"},{"display_name":"XML","updated_at":"2016-07-21T04:34:03.024991988+02:00","id":"au8396td7n70ed44hgng","ace_js_mode":"xml","created_at":"2016-07-21T04:34:03.024989137+02:00","_etag":"85454a30c66c30e5e11c4922ba8cd5c4"},{"_etag":"ab6469a1e526e4fb6b91aa9cb99a0ed8","created_at":"2016-07-21T04:34:03.590952491+02:00","id":"au8396td7n70ed44hgog","ace_js_mode":"yaml","display_name":"YAML","updated_at":"2016-07-21T04:34:03.590956037+02:00"}]},
-    themes : [{"theme_display_name":"tomorrow-night-eighties","theme_name":"ace/theme/tomorrow_night_eighties"},{"theme_display_name":"eclipse","theme_name":"ace/theme/eclipse"},{"theme_display_name":"dreamweaver","theme_name":"ace/theme/dreamweaver"},{"theme_name":"ace/theme/monokai","theme_display_name":"monokai"},{"theme_name":"ace/theme/tomorrow_night_bright","theme_display_name":"tomorrow-night-bright"},{"theme_name":"ace/theme/terminal","theme_display_name":"terminal"},{"theme_name":"ace/theme/kuroir","theme_display_name":"kuroir"},{"theme_name":"ace/theme/pastel_on_dark","theme_display_name":"pastel-on-dark"},{"theme_name":"ace/theme/chrome","theme_display_name":"chrome"},{"theme_name":"ace/theme/idle_fingers","theme_display_name":"idle-fingers"},{"theme_name":"ace/theme/tomorrow","theme_display_name":"tomorrow"},{"theme_display_name":"solarized-light","theme_name":"ace/theme/solarized_light"},{"theme_name":"ace/theme/mono_industrial","theme_display_name":"mono-industrial"},{"theme_name":"ace/theme/cobalt","theme_display_name":"cobalt"},{"theme_display_name":"vibrant-ink","theme_name":"ace/theme/vibrant_ink"},{"theme_display_name":"solarized-dark","theme_name":"ace/theme/solarized_dark"},{"theme_display_name":"crimson-editor","theme_name":"ace/theme/crimson_editor"},{"theme_name":"ace/theme/textmate","theme_display_name":"textmate"},{"theme_display_name":"dawn","theme_name":"ace/theme/dawn"},{"theme_name":"ace/theme/kr_theme","theme_display_name":"kr-theme"},{"theme_name":"ace/theme/tomorrow_night_blue","theme_display_name":"tomorrow-night-blue"},{"theme_display_name":"github","theme_name":"ace/theme/github"},{"theme_display_name":"tomorrow-night","theme_name":"ace/theme/tomorrow_night"},{"theme_name":"ace/theme/ambiance","theme_display_name":"ambiance"},{"theme_display_name":"merbivore","theme_name":"ace/theme/merbivore"},{"theme_display_name":"merbivore-soft","theme_name":"ace/theme/merbivore_soft"},{"theme_display_name":"twilight","theme_name":"ace/theme/twilight"},{"theme_name":"ace/theme/clouds","theme_display_name":"clouds"},{"theme_display_name":"xcode","theme_name":"ace/theme/xcode"},{"theme_name":"ace/theme/clouds_midnight","theme_display_name":"clouds-midnight"},{"theme_display_name":"chaos","theme_name":"ace/theme/chaos"},{"theme_display_name":"katzenmilch","theme_name":"ace/theme/katzenmilch"}],
+    grouped_syntaxes : {"A B ":[{"_etag":"438b897c673d9482a533b0a405d96677","display_name":"Ada","created_at":"2016-07-21T04:33:49.550282403+02:00","updated_at":"2016-07-21T04:33:49.55028507+02:00","ace_js_mode":"ada","id":"au8393dd7n70ed44hf2g"},{"created_at":"2016-07-21T04:33:49.597335998+02:00","display_name":"Advanced Business Application Programming","_etag":"4a82549de1375f548e5a3d29621980e6","ace_js_mode":"abap","id":"au8393dd7n70ed44hf30","updated_at":"2016-07-21T04:33:49.597338507+02:00"},{"ace_js_mode":"asciidoc","id":"au8393dd7n70ed44hf40","updated_at":"2016-07-21T04:33:49.685311739+02:00","_etag":"fc68cec9cb6cafb4451cc0cec26b0ef3","display_name":"AsciiDoc","created_at":"2016-07-21T04:33:49.685308884+02:00"},{"updated_at":"2016-07-21T04:33:49.502608904+02:00","id":"au8393dd7n70ed44hf20","ace_js_mode":"actionscript","created_at":"2016-07-21T04:33:49.502605746+02:00","display_name":"ActionScript","_etag":"746cec6457ab30e338fdf628573079f1"},{"updated_at":"2016-07-21T04:33:49.37785325+02:00","id":"au8393dd7n70ed44hf1g","ace_js_mode":"abc","created_at":"2016-07-21T04:33:49.37779571+02:00","_etag":"621e51a0f8bc1d73fd2e0a7d052b3423","display_name":"ABC"},{"created_at":"2016-07-21T04:33:49.729229378+02:00","_etag":"f0e79310acaa2028f4e04dec66bc7bb1","display_name":"Assembly","ace_js_mode":"assembly","id":"au8393dd7n70ed44hf4g","updated_at":"2016-07-21T04:33:49.729232383+02:00"},{"_etag":"9ee6055dc3e4b6c8330e5ee7346b1ce1","display_name":"Apache conf","created_at":"2016-07-21T04:33:49.63836722+02:00","ace_js_mode":"apache_conf","id":"au8393dd7n70ed44hf3g","updated_at":"2016-07-21T04:33:49.638370861+02:00"},{"_etag":"7eca1c5db045597610c5a8588c203504","display_name":"AutoHotkey","created_at":"2016-07-21T04:33:49.780724723+02:00","updated_at":"2016-07-21T04:33:49.780727572+02:00","id":"au8393dd7n70ed44hf50","ace_js_mode":"autohotkey"},{"display_name":"Batch file","_etag":"89fb621bda548238da4ca81bf74ffddb","created_at":"2016-07-21T04:33:49.826635235+02:00","updated_at":"2016-07-21T04:33:49.826639751+02:00","id":"au8393dd7n70ed44hf5g","ace_js_mode":"batchfile"}],"C ":[{"updated_at":"2016-07-21T04:33:50.064601577+02:00","ace_js_mode":"css","id":"au8393ld7n70ed44hf7g","created_at":"2016-07-21T04:33:50.064675721+02:00","_etag":"b397bb51dbb8bf8f107356cc61986813","display_name":"CSS"},{"_etag":"bd985c8f8b285bb4b520b0f4765c6231","display_name":"C9 Search","created_at":"2016-07-21T04:33:50.016807808+02:00","ace_js_mode":"c9search","id":"au8393ld7n70ed44hf70","updated_at":"2016-07-21T04:33:50.016811236+02:00"},{"updated_at":"2016-07-21T04:33:50.164411212+02:00","ace_js_mode":"clojure","id":"au8393ld7n70ed44hf8g","_etag":"e621eacf7a0b0d60b5a3b9849e5e5fda","display_name":"Clojure","created_at":"2016-07-21T04:33:50.164406927+02:00"},{"created_at":"2016-07-21T04:33:49.92426086+02:00","_etag":"1b0e6bd5707110756c5ff92f7c7330dc","display_name":"C#","updated_at":"2016-07-21T04:33:49.924200081+02:00","ace_js_mode":"csharp","id":"au8393dd7n70ed44hf6g"},{"_etag":"72552a478d25218189238d066e6f655f","display_name":"ColdFusion","created_at":"2016-07-21T04:33:50.478618297+02:00","ace_js_mode":"coldfusion","id":"au8393ld7n70ed44hfa0","updated_at":"2016-07-21T04:33:50.47862145+02:00"},{"_etag":"64f7e47773ea21f5ee614ac1e42a08be","display_name":"Coffeescript","created_at":"2016-07-21T04:33:50.35345636+02:00","updated_at":"2016-07-21T04:33:50.353460104+02:00","ace_js_mode":"coffee","id":"au8393ld7n70ed44hf9g"},{"updated_at":"2016-07-21T04:33:50.117046503+02:00","ace_js_mode":"cirry","id":"au8393ld7n70ed44hf80","_etag":"2cab4b1d09fb9a1d583e3df6f0b0f7d4","display_name":"Cirry","created_at":"2016-07-21T04:33:50.117043553+02:00"},{"updated_at":"2016-07-21T04:33:50.224940952+02:00","ace_js_mode":"cobol","id":"au8393ld7n70ed44hf90","created_at":"2016-07-21T04:33:50.224937811+02:00","_etag":"456a80eb4b7c20b08a0cd35ac1c6217c","display_name":"Cobol"},{"created_at":"2016-07-21T04:33:49.877005385+02:00","display_name":"C / C++","_etag":"91e713e4c083c104628732d513186eb3","id":"au8393dd7n70ed44hf60","ace_js_mode":"c_cpp","updated_at":"2016-07-21T04:33:49.877008515+02:00"},{"ace_js_mode":"curly","id":"au8393ld7n70ed44hfag","updated_at":"2016-07-21T04:33:50.555796125+02:00","created_at":"2016-07-21T04:33:50.555793023+02:00","_etag":"070d31f2be8034c29e90c6bf167ba1d9","display_name":"Curly"}],"D E F G ":[{"updated_at":"2016-07-21T04:33:50.618885934+02:00","id":"au8393ld7n70ed44hfb0","ace_js_mode":"d","created_at":"2016-07-21T04:33:50.618883005+02:00","display_name":"D Programming","_etag":"e45277381aadd9ca080bffe26823b009"},{"created_at":"2016-07-21T04:33:50.832928707+02:00","_etag":"fec00aa71025dc930e9dabf38b1fab79","display_name":"Django","ace_js_mode":"django","id":"au8393ld7n70ed44hfcg","updated_at":"2016-07-21T04:33:50.832931949+02:00"},{"id":"au8393ld7n70ed44hfd0","ace_js_mode":"dot","updated_at":"2016-07-21T04:33:50.956768703+02:00","display_name":"DotNet","_etag":"541718e7f5014023c758fe27fb9bca85","created_at":"2016-07-21T04:33:50.956764533+02:00"},{"updated_at":"2016-07-21T04:33:50.694413644+02:00","ace_js_mode":"dart","id":"au8393ld7n70ed44hfbg","created_at":"2016-07-21T04:33:50.694410299+02:00","_etag":"7903436922ef772982d0aa167cf38158","display_name":"Dart"},{"display_name":"Diff","_etag":"e18da8f5d50edbb1ad33c6ed6327bfc6","created_at":"2016-07-21T04:33:50.748843918+02:00","updated_at":"2016-07-21T04:33:50.748847493+02:00","ace_js_mode":"diff","id":"au8393ld7n70ed44hfc0"},{"created_at":"2016-07-21T04:33:51.199683088+02:00","_etag":"ba53984eff9b4c80a07235cbfeb4c0c9","display_name":"Erlang","updated_at":"2016-07-21T04:33:51.199685753+02:00","id":"au8393td7n70ed44hfe0","ace_js_mode":"erlang"},{"created_at":"2016-07-21T04:33:51.139596149+02:00","_etag":"a74ae178c432c1dbe1ed613a5b6e4240","display_name":"EJS","updated_at":"2016-07-21T04:33:51.139598734+02:00","ace_js_mode":"ejs","id":"au8393td7n70ed44hfdg"},{"display_name":"FORTH","_etag":"d478587acf3b7c08b8ee5c8996c7c00e","created_at":"2016-07-21T04:33:51.254875262+02:00","ace_js_mode":"forth","id":"au8393td7n70ed44hfeg","updated_at":"2016-07-21T04:33:51.254878435+02:00"},{"updated_at":"2016-07-21T04:33:51.444950988+02:00","ace_js_mode":"golang","id":"au8393td7n70ed44hffg","_etag":"a9b9996c6de519022a1baabe10c75498","display_name":"Golang","created_at":"2016-07-21T04:33:51.444947423+02:00"},{"created_at":"2016-07-21T04:33:51.52653962+02:00","_etag":"050d6b9f2857606301a34ed745615442","display_name":"Groovy","id":"au8393td7n70ed44hfg0","ace_js_mode":"groovy","updated_at":"2016-07-21T04:33:51.526518159+02:00"},{"display_name":"Gherkin","_etag":"3c1998b99871a97779990ad3ad05cc37","created_at":"2016-07-21T04:33:51.381842623+02:00","ace_js_mode":"gherkin","id":"au8393td7n70ed44hff0","updated_at":"2016-07-21T04:33:51.381845969+02:00"}],"H I ":[{"updated_at":"2016-07-21T04:33:51.839603827+02:00","ace_js_mode":"html","id":"au8393td7n70ed44hfh0","created_at":"2016-07-21T04:33:51.839600917+02:00","_etag":"2c6a7bc675a5b3642687f2306a9487a7","display_name":"HTML"},{"display_name":"Handlebars","_etag":"660ee287ade17f172a835f32d15c517b","created_at":"2016-07-21T04:33:52.028453318+02:00","id":"au83945d7n70ed44hfi0","ace_js_mode":"handlebars","updated_at":"2016-07-21T04:33:52.02845677+02:00"},{"updated_at":"2016-07-21T04:33:51.942865081+02:00","ace_js_mode":"html_ruby","id":"au8393td7n70ed44hfhg","created_at":"2016-07-21T04:33:51.942861928+02:00","display_name":"HTML ERB","_etag":"749014e3a7eab40b51018710118c7e59"},{"ace_js_mode":"haxe","id":"au83945d7n70ed44hfj0","updated_at":"2016-07-21T04:33:52.162945851+02:00","created_at":"2016-07-21T04:33:52.162942534+02:00","display_name":"Haxe","_etag":"f99556f8530b169d8da52715c2f6360f"},{"updated_at":"2016-07-21T04:33:52.099060298+02:00","id":"au83945d7n70ed44hfig","ace_js_mode":"haskell","created_at":"2016-07-21T04:33:52.099083519+02:00","display_name":"Haskell","_etag":"0e5d10ba82775e1d9781daf3024ba43d"},{"ace_js_mode":"haml","id":"au8393td7n70ed44hfgg","updated_at":"2016-07-21T04:33:51.632714082+02:00","display_name":"HAML","_etag":"a7239ecb777e16286c92257b627017c7","created_at":"2016-07-21T04:33:51.632711495+02:00"},{"created_at":"2016-07-21T04:33:52.403175069+02:00","display_name":"INI","_etag":"2ddd399cee8cf18256550324099c6638","updated_at":"2016-07-21T04:33:52.403178373+02:00","id":"au83945d7n70ed44hfjg","ace_js_mode":"ini"}],"J K ":[{"display_name":"Javascript","_etag":"a7f79efa9d1a869c8b30bc63f5d15074","created_at":"2016-07-21T04:33:52.990356773+02:00","updated_at":"2016-07-21T04:33:52.990359597+02:00","id":"au83945d7n70ed44hfng","ace_js_mode":"javascript"},{"ace_js_mode":"java","id":"au83945d7n70ed44hfn0","updated_at":"2016-07-21T04:33:52.914885584+02:00","display_name":"Java","_etag":"bcf51bd457fdc5c6b1168dc007b55d98","created_at":"2016-07-21T04:33:52.914882698+02:00"},{"updated_at":"2016-07-21T04:33:52.549349509+02:00","ace_js_mode":"json","id":"au83945d7n70ed44hfkg","created_at":"2016-07-21T04:33:52.549346336+02:00","_etag":"358e6f83d9d66e21ca25c1eab8c57af8","display_name":"JSON"},{"_etag":"627bf3510d66a73566fdea11ac03d5b2","display_name":"JSP","created_at":"2016-07-21T04:33:52.695506168+02:00","id":"au83945d7n70ed44hflg","ace_js_mode":"jsp","updated_at":"2016-07-21T04:33:52.695510364+02:00"},{"id":"au83945d7n70ed44hfl0","ace_js_mode":"jsoniq","updated_at":"2016-07-21T04:33:52.629501207+02:00","created_at":"2016-07-21T04:33:52.629497495+02:00","_etag":"82d6302e30647d8c61b2b405a3be43f1","display_name":"JSON Query Language"},{"updated_at":"2016-07-21T04:33:52.479479247+02:00","ace_js_mode":"jack","id":"au83945d7n70ed44hfk0","created_at":"2016-07-21T04:33:52.479476451+02:00","display_name":"JACK","_etag":"65e9e3a18b17ff917a723ad7d2653be1"},{"created_at":"2016-07-21T04:33:52.771046898+02:00","_etag":"8c75484deeea19cb26afae6dbd7e11e6","display_name":"JSX","updated_at":"2016-07-21T04:33:52.77104962+02:00","id":"au83945d7n70ed44hfm0","ace_js_mode":"jsx"},{"created_at":"2016-07-21T04:33:53.151452047+02:00","_etag":"42a1a604abe1cc049570ac9585066dc8","display_name":"Julia","updated_at":"2016-07-21T04:33:53.151454617+02:00","id":"au8394dd7n70ed44hfo0","ace_js_mode":"julia"},{"_etag":"a9413b92f73c11cdf866ce5b628c1fef","display_name":"Jade","created_at":"2016-07-21T04:33:52.850677421+02:00","updated_at":"2016-07-21T04:33:52.85065892+02:00","ace_js_mode":"jade","id":"au83945d7n70ed44hfmg"}],"L ":[{"_etag":"c37160bc8d1173063101e6a3cd059111","display_name":"Lua","created_at":"2016-07-21T04:33:54.184467542+02:00","updated_at":"2016-07-21T04:33:54.184470926+02:00","id":"au8394ld7n70ed44hfsg","ace_js_mode":"lua"},{"updated_at":"2016-07-21T04:33:53.999491756+02:00","ace_js_mode":"livescript","id":"au8394dd7n70ed44hfrg","_etag":"c4a2ed37ecd3d1801c5c116ba1833b98","display_name":"LiveScript","created_at":"2016-07-21T04:33:53.999552134+02:00"},{"updated_at":"2016-07-21T04:33:54.351663245+02:00","id":"au8394ld7n70ed44hft0","ace_js_mode":"luapage","created_at":"2016-07-21T04:33:54.351659549+02:00","display_name":"Lua page","_etag":"8a64c0f9416fdf8846081549ec434adf"},{"display_name":"LogiQL","_etag":"fbb78fdb52168e593b60069e09196c36","created_at":"2016-07-21T04:33:54.079094432+02:00","updated_at":"2016-07-21T04:33:54.079098108+02:00","ace_js_mode":"logiql","id":"au8394ld7n70ed44hfs0"},{"created_at":"2016-07-21T04:33:53.811155071+02:00","_etag":"a90c70fd60c8fd116e90002de5e76ee9","display_name":"Liquid","updated_at":"2016-07-21T04:33:53.811203888+02:00","id":"au8394dd7n70ed44hfqg","ace_js_mode":"liquid"},{"_etag":"f4cfcd4235dac71db09c82d171d53832","display_name":"LESS","created_at":"2016-07-21T04:33:53.27504783+02:00","updated_at":"2016-07-21T04:33:53.275051107+02:00","ace_js_mode":"less","id":"au8394dd7n70ed44hfog"},{"created_at":"2016-07-21T04:33:53.364920083+02:00","_etag":"b816b7676145d9f296200ba319065b75","display_name":"Latex","updated_at":"2016-07-21T04:33:53.364923979+02:00","id":"au8394dd7n70ed44hfp0","ace_js_mode":"latex"},{"ace_js_mode":"lean","id":"au8394dd7n70ed44hfpg","updated_at":"2016-07-21T04:33:53.519431416+02:00","created_at":"2016-07-21T04:33:53.519493112+02:00","_etag":"b6e58ed0b74e82b4af6bf2238cefad44","display_name":"Lean"},{"id":"au8394dd7n70ed44hfr0","ace_js_mode":"lisp","updated_at":"2016-07-21T04:33:53.908010838+02:00","created_at":"2016-07-21T04:33:53.908007108+02:00","display_name":"Lisp","_etag":"2d6ba4daa7eb841c4f62d69c6f73c019"},{"updated_at":"2016-07-21T04:33:53.58505441+02:00","ace_js_mode":"lsl","id":"au8394dd7n70ed44hfq0","display_name":"Linden Scripting","_etag":"fb1a6c21ff11384f3e4865c3b8a38070","created_at":"2016-07-21T04:33:53.585072546+02:00"},{"id":"au8394ld7n70ed44hftg","ace_js_mode":"lucene","updated_at":"2016-07-21T04:33:54.432760991+02:00","_etag":"888127e0da23c6d4614a732568048ba6","display_name":"Lucene","created_at":"2016-07-21T04:33:54.43275829+02:00"}],"M N O ":[{"ace_js_mode":"markdown","id":"au8394td7n70ed44hg00","updated_at":"2016-07-21T04:33:55.067844358+02:00","display_name":"Markdown","_etag":"5606730ef7211597b4b737fd0cc05120","created_at":"2016-07-21T04:33:55.067841177+02:00"},{"ace_js_mode":"makefile","id":"au8394ld7n70ed44hfvg","updated_at":"2016-07-21T04:33:54.890984419+02:00","created_at":"2016-07-21T04:33:54.890981127+02:00","_etag":"ca25db3b8810fa8267da59496958d8f5","display_name":"Makefile"},{"updated_at":"2016-07-21T04:33:54.590362223+02:00","ace_js_mode":"mel","id":"au8394ld7n70ed44hfug","created_at":"2016-07-21T04:33:54.590359108+02:00","_etag":"10dc0fe0e62f5357db010d6a59ff97a2","display_name":"MEL"},{"created_at":"2016-07-21T04:33:54.507317586+02:00","display_name":"MATLAB","_etag":"5f31eb000f5af9ff6088984326e3059b","ace_js_mode":"matlab","id":"au8394ld7n70ed44hfu0","updated_at":"2016-07-21T04:33:54.507320773+02:00"},{"created_at":"2016-07-21T04:33:54.756053642+02:00","_etag":"0fb2d1c68096c05a4b2399903b3e804f","display_name":"MUSHCode","updated_at":"2016-07-21T04:33:54.755984173+02:00","id":"au8394ld7n70ed44hfv0","ace_js_mode":"mushcode"},{"ace_js_mode":"mysql","id":"au8394td7n70ed44hg10","updated_at":"2016-07-21T04:33:55.281800682+02:00","display_name":"MySQL","_etag":"0fdc9ddf5d7d7d61c36e25d26cdd2afb","created_at":"2016-07-21T04:33:55.281797349+02:00"},{"created_at":"2016-07-21T04:33:55.194108205+02:00","display_name":"Mask","_etag":"dba23f8658d8cdbaaf1c09616fed6404","id":"au8394td7n70ed44hg0g","ace_js_mode":"mask","updated_at":"2016-07-21T04:33:55.194112351+02:00"},{"created_at":"2016-07-21T04:33:55.556665227+02:00","_etag":"2de40cb5e5876641b78caa72e3c1fac3","display_name":"Nix","ace_js_mode":"nix","id":"au8394td7n70ed44hg1g","updated_at":"2016-07-21T04:33:55.55664068+02:00"},{"created_at":"2016-07-21T04:33:55.841739265+02:00","display_name":"OpenGL Shading Language","_etag":"3c99cce8679c35e2f937e8dfe339b20b","id":"au8394td7n70ed44hg30","ace_js_mode":"glsl","updated_at":"2016-07-21T04:33:55.841788185+02:00"},{"updated_at":"2016-07-21T04:33:55.755627656+02:00","ace_js_mode":"objectivec","id":"au8394td7n70ed44hg2g","created_at":"2016-07-21T04:33:55.755624284+02:00","_etag":"a09e3a8e83b471b8b72717f700662f4d","display_name":"Objective C"},{"display_name":"OCaml","_etag":"ba9c80dd63f27e2fbb9872be38997887","created_at":"2016-07-21T04:33:55.65820079+02:00","id":"au8394td7n70ed44hg20","ace_js_mode":"ocaml","updated_at":"2016-07-21T04:33:55.658203465+02:00"}],"P Q R ":[{"ace_js_mode":"powershell","id":"au83955d7n70ed44hg6g","updated_at":"2016-07-21T04:33:56.609625293+02:00","_etag":"c460c888907c1a91c539c7415ad7cda8","display_name":"Powershell","created_at":"2016-07-21T04:33:56.609622041+02:00"},{"created_at":"2016-07-21T04:33:56.405768564+02:00","_etag":"5e495ef53716fab43c5a368cb267546d","display_name":"Perl","id":"au83955d7n70ed44hg5g","ace_js_mode":"perl","updated_at":"2016-07-21T04:33:56.405771599+02:00"},{"updated_at":"2016-07-21T04:33:56.756917667+02:00","ace_js_mode":"prolog","id":"au83955d7n70ed44hg70","_etag":"2c119d2993da7d725b3bfe6a42a1f876","display_name":"Prolog","created_at":"2016-07-21T04:33:56.756913596+02:00"},{"display_name":"Pascal","_etag":"3cdf6b81bc8519086932262adaac6f5a","created_at":"2016-07-21T04:33:56.308400133+02:00","updated_at":"2016-07-21T04:33:56.308403107+02:00","ace_js_mode":"pascal","id":"au83955d7n70ed44hg50"},{"updated_at":"2016-07-21T04:33:56.003778635+02:00","id":"au83955d7n70ed44hg3g","ace_js_mode":"pdms_pml","created_at":"2016-07-21T04:33:56.00377523+02:00","display_name":"PDMS PML","_etag":"5c7648ba97e5ccd34de80e86cd13771e"},{"display_name":"Python","_etag":"114f8403bcba115a1f2aa46fa4528994","created_at":"2016-07-21T04:33:57.22590149+02:00","updated_at":"2016-07-21T04:33:57.225904582+02:00","ace_js_mode":"python","id":"au8395dd7n70ed44hg8g"},{"created_at":"2016-07-21T04:33:57.057356458+02:00","display_name":"Protobuf","_etag":"c73b58a4f982646c91dae170367f4396","id":"au8395dd7n70ed44hg80","ace_js_mode":"protobuf","updated_at":"2016-07-21T04:33:57.057359091+02:00"},{"ace_js_mode":"properties","id":"au83955d7n70ed44hg7g","updated_at":"2016-07-21T04:33:56.895125809+02:00","created_at":"2016-07-21T04:33:56.895122272+02:00","_etag":"416c6f380ca6caf91361ee567e65e9bc","display_name":"Properties"},{"_etag":"b4043ffded6414f6604bbb6aad199aa8","display_name":"PGSQL","created_at":"2016-07-21T04:33:56.10059392+02:00","ace_js_mode":"pgsql","id":"au83955d7n70ed44hg40","updated_at":"2016-07-21T04:33:56.10354685+02:00"},{"_etag":"5b5a73c42aef589e96f09a867ab764c2","display_name":"PHP","created_at":"2016-07-21T04:33:56.190663541+02:00","updated_at":"2016-07-21T04:33:56.19066674+02:00","ace_js_mode":"php","id":"au83955d7n70ed44hg4g"},{"ace_js_mode":"plain_text","id":"au83955d7n70ed44hg60","updated_at":"2016-07-21T04:33:56.512880992+02:00","_etag":"e36fa484effd684c085949bb0b8cebd9","display_name":"Plain text","created_at":"2016-07-21T04:33:56.512877854+02:00"},{"updated_at":"2016-07-21T04:33:57.737253794+02:00","id":"au8395dd7n70ed44hga0","ace_js_mode":"rhtml","_etag":"48f75a49afc14640cee7148763655785","display_name":"RHTML","created_at":"2016-07-21T04:33:57.737250963+02:00"},{"ace_js_mode":"r","id":"au8395dd7n70ed44hg90","updated_at":"2016-07-21T04:33:57.325531762+02:00","display_name":"R","_etag":"483bc79eeb2ca607d406e99a079e20ca","created_at":"2016-07-21T04:33:57.325529017+02:00"},{"updated_at":"2016-07-21T04:33:57.536529873+02:00","id":"au8395dd7n70ed44hg9g","ace_js_mode":"rdoc","created_at":"2016-07-21T04:33:57.53647513+02:00","display_name":"RDoc","_etag":"0dc2b793b2c78546fba26e12b5445091"},{"_etag":"84ca2e49d0f7b1a2a5d2119effa0a67e","display_name":"Rust","created_at":"2016-07-21T04:33:57.928826613+02:00","updated_at":"2016-07-21T04:33:57.928829867+02:00","ace_js_mode":"rust","id":"au8395dd7n70ed44hgb0"},{"ace_js_mode":"ruby","id":"au8395dd7n70ed44hgag","updated_at":"2016-07-21T04:33:57.826716221+02:00","created_at":"2016-07-21T04:33:57.826712539+02:00","_etag":"1d77a53c2497ed68dd2c74f20982f08d","display_name":"Ruby"}],"S ":[{"id":"au8395td7n70ed44hggg","ace_js_mode":"snippets","updated_at":"2016-07-21T04:33:59.750620134+02:00","created_at":"2016-07-21T04:33:59.750617502+02:00","display_name":"Snippets","_etag":"35da544cc9d37e225e0aafca4a62a8df"},{"id":"au8395td7n70ed44hgh0","ace_js_mode":"soy_template","updated_at":"2016-07-21T04:33:59.995213255+02:00","display_name":"Soy template","_etag":"902740b7d5b8e30eea74bc7eb506e5bc","created_at":"2016-07-21T04:33:59.995210637+02:00"},{"created_at":"2016-07-21T04:33:58.318140989+02:00","_etag":"9dfe8f56cc7f52e9c82fb1a47d7dffc2","display_name":"SCAD","updated_at":"2016-07-21T04:33:58.318145985+02:00","id":"au8395ld7n70ed44hgc0","ace_js_mode":"scad"},{"created_at":"2016-07-21T04:33:58.458349843+02:00","display_name":"SCSS","_etag":"3c0dd9d1c57d237b7d36961e5d937c54","ace_js_mode":"scss","id":"au8395ld7n70ed44hgcg","updated_at":"2016-07-21T04:33:58.458352801+02:00"},{"created_at":"2016-07-21T04:33:58.960189359+02:00","_etag":"ce0ed5f0893ce1e2e439f2279f42dc2c","display_name":"SVG","updated_at":"2016-07-21T04:33:58.96019251+02:00","ace_js_mode":"svg","id":"au8395ld7n70ed44hge0"},{"ace_js_mode":"space","id":"au83965d7n70ed44hghg","updated_at":"2016-07-21T04:34:00.200418251+02:00","display_name":"Space","_etag":"c3b443400d332496ce9215d621984f6a","created_at":"2016-07-21T04:34:00.200415144+02:00"},{"display_name":"Smarty","_etag":"fe27fd0e7f32917631fd17bb6b6a1697","created_at":"2016-07-21T04:33:59.640549957+02:00","updated_at":"2016-07-21T04:33:59.640552343+02:00","ace_js_mode":"smarty","id":"au8395td7n70ed44hgg0"},{"display_name":"SJS","_etag":"2753d22537d4f80da619edce6c89a410","created_at":"2016-07-21T04:33:58.666030272+02:00","updated_at":"2016-07-21T04:33:58.666034078+02:00","ace_js_mode":"sjs","id":"au8395ld7n70ed44hgd0"},{"created_at":"2016-07-21T04:33:58.822646923+02:00","_etag":"5c2bb0d3168193972f750c4a7a7954d6","display_name":"SQL","updated_at":"2016-07-21T04:33:58.822649572+02:00","ace_js_mode":"sql","id":"au8395ld7n70ed44hgdg"},{"updated_at":"2016-07-21T04:34:00.418797224+02:00","ace_js_mode":"stylus","id":"au83965d7n70ed44hgi0","created_at":"2016-07-21T04:34:00.418793844+02:00","_etag":"73f1cea4cdb18831e2465bc2abdb1962","display_name":"Stylus"},{"id":"au8395td7n70ed44hgeg","ace_js_mode":"scala","updated_at":"2016-07-21T04:33:59.206867154+02:00","_etag":"d6cf766d2865d90bd206460be9b6c026","display_name":"Scala","created_at":"2016-07-21T04:33:59.206863908+02:00"},{"_etag":"f510409e4903d8fdc23f281555021297","display_name":"Shell","created_at":"2016-07-21T04:33:59.533991957+02:00","ace_js_mode":"sh","id":"au8395td7n70ed44hgfg","updated_at":"2016-07-21T04:33:59.533995073+02:00"},{"ace_js_mode":"sass","id":"au8395ld7n70ed44hgbg","updated_at":"2016-07-21T04:33:58.147197335+02:00","created_at":"2016-07-21T04:33:58.147193661+02:00","_etag":"cd10e39dc2173ba7795c8ff9faeb12ae","display_name":"SASS"},{"_etag":"21016e6194fabb8dde588be4e85d2214","display_name":"Scheme","created_at":"2016-07-21T04:33:59.411624306+02:00","updated_at":"2016-07-21T04:33:59.411600146+02:00","ace_js_mode":"scheme","id":"au8395td7n70ed44hgf0"}],"T ":[{"created_at":"2016-07-21T04:34:00.882450662+02:00","_etag":"4ae0105322870946702c7b9bf6bc05e8","display_name":"TEX","id":"au83965d7n70ed44hgj0","ace_js_mode":"tex","updated_at":"2016-07-21T04:34:00.882494886+02:00"},{"_etag":"bda05847f9a5136a88fb6b8dbf18ba09","display_name":"TCL","created_at":"2016-07-21T04:34:00.661160875+02:00","ace_js_mode":"tcl","id":"au83965d7n70ed44hgig","updated_at":"2016-07-21T04:34:00.661165036+02:00"},{"ace_js_mode":"textile","id":"au8396dd7n70ed44hgk0","updated_at":"2016-07-21T04:34:01.213831938+02:00","created_at":"2016-07-21T04:34:01.213828382+02:00","_etag":"f2922cc52cf85b7b0dd8c31f548f4b0e","display_name":"Textile"},{"display_name":"TOML","_etag":"dceac57ba7d4b4cb7c7a99b9375028d0","created_at":"2016-07-21T04:34:01.059127578+02:00","id":"au8396dd7n70ed44hgjg","ace_js_mode":"toml","updated_at":"2016-07-21T04:34:01.059106004+02:00"},{"updated_at":"2016-07-21T04:34:01.480475388+02:00","id":"au8396dd7n70ed44hgkg","ace_js_mode":"twig","created_at":"2016-07-21T04:34:01.48047135+02:00","display_name":"Twig","_etag":"64a9ceb5d1292bc4a741fc2efa181a2c"},{"_etag":"fc9da9a5c2c9c270e00bf7cc46967874","display_name":"TypeScript","created_at":"2016-07-21T04:34:01.79074+02:00","updated_at":"2016-07-21T04:34:01.790743257+02:00","ace_js_mode":"typescript","id":"au8396dd7n70ed44hgl0"}],"U V W X Y Z ":[{"id":"au8396ld7n70ed44hglg","ace_js_mode":"vbscript","updated_at":"2016-07-21T04:34:02.015219431+02:00","display_name":"VB Script","_etag":"f34210464d86cc767cadea4bc479ae9c","created_at":"2016-07-21T04:34:02.015250022+02:00"},{"created_at":"2016-07-21T04:34:02.340110228+02:00","display_name":"VHDL","_etag":"932b753f31b21fd26ed08ec8def02707","id":"au8396ld7n70ed44hgm0","ace_js_mode":"vhdl","updated_at":"2016-07-21T04:34:02.340113443+02:00"},{"updated_at":"2016-07-21T04:34:02.86730266+02:00","id":"au8396ld7n70ed44hgn0","ace_js_mode":"verilog","display_name":"Verilog","_etag":"bd75226b2e5170b4fcf34c5ece1c83a3","created_at":"2016-07-21T04:34:02.867299363+02:00"},{"_etag":"ab850f2154e0804bf999f67b87b8aab8","display_name":"Velocity","created_at":"2016-07-21T04:34:02.572017896+02:00","updated_at":"2016-07-21T04:34:02.572023947+02:00","ace_js_mode":"velocity","id":"au8396ld7n70ed44hgmg"},{"display_name":"XQuery","_etag":"6fd7715cf9df310c51fae76be2f28267","created_at":"2016-07-21T04:34:03.28579248+02:00","updated_at":"2016-07-21T04:34:03.285795486+02:00","id":"au8396td7n70ed44hgo0","ace_js_mode":"xquery"},{"display_name":"XML","_etag":"85454a30c66c30e5e11c4922ba8cd5c4","created_at":"2016-07-21T04:34:03.024989137+02:00","id":"au8396td7n70ed44hgng","ace_js_mode":"xml","updated_at":"2016-07-21T04:34:03.024991988+02:00"},{"_etag":"ab6469a1e526e4fb6b91aa9cb99a0ed8","display_name":"YAML","created_at":"2016-07-21T04:34:03.590952491+02:00","updated_at":"2016-07-21T04:34:03.590956037+02:00","ace_js_mode":"yaml","id":"au8396td7n70ed44hgog"}]},
+    themes : [{"theme_display_name":"tomorrow-night-eighties","theme_name":"ace/theme/tomorrow_night_eighties"},{"theme_name":"ace/theme/eclipse","theme_display_name":"eclipse"},{"theme_display_name":"dreamweaver","theme_name":"ace/theme/dreamweaver"},{"theme_display_name":"monokai","theme_name":"ace/theme/monokai"},{"theme_display_name":"tomorrow-night-bright","theme_name":"ace/theme/tomorrow_night_bright"},{"theme_name":"ace/theme/terminal","theme_display_name":"terminal"},{"theme_name":"ace/theme/kuroir","theme_display_name":"kuroir"},{"theme_display_name":"pastel-on-dark","theme_name":"ace/theme/pastel_on_dark"},{"theme_name":"ace/theme/chrome","theme_display_name":"chrome"},{"theme_name":"ace/theme/idle_fingers","theme_display_name":"idle-fingers"},{"theme_display_name":"tomorrow","theme_name":"ace/theme/tomorrow"},{"theme_display_name":"solarized-light","theme_name":"ace/theme/solarized_light"},{"theme_name":"ace/theme/mono_industrial","theme_display_name":"mono-industrial"},{"theme_name":"ace/theme/cobalt","theme_display_name":"cobalt"},{"theme_name":"ace/theme/vibrant_ink","theme_display_name":"vibrant-ink"},{"theme_name":"ace/theme/solarized_dark","theme_display_name":"solarized-dark"},{"theme_name":"ace/theme/crimson_editor","theme_display_name":"crimson-editor"},{"theme_name":"ace/theme/textmate","theme_display_name":"textmate"},{"theme_name":"ace/theme/dawn","theme_display_name":"dawn"},{"theme_display_name":"kr-theme","theme_name":"ace/theme/kr_theme"},{"theme_name":"ace/theme/tomorrow_night_blue","theme_display_name":"tomorrow-night-blue"},{"theme_name":"ace/theme/github","theme_display_name":"github"},{"theme_name":"ace/theme/tomorrow_night","theme_display_name":"tomorrow-night"},{"theme_name":"ace/theme/ambiance","theme_display_name":"ambiance"},{"theme_name":"ace/theme/merbivore","theme_display_name":"merbivore"},{"theme_name":"ace/theme/merbivore_soft","theme_display_name":"merbivore-soft"},{"theme_name":"ace/theme/twilight","theme_display_name":"twilight"},{"theme_name":"ace/theme/clouds","theme_display_name":"clouds"},{"theme_display_name":"xcode","theme_name":"ace/theme/xcode"},{"theme_name":"ace/theme/clouds_midnight","theme_display_name":"clouds-midnight"},{"theme_display_name":"chaos","theme_name":"ace/theme/chaos"},{"theme_display_name":"katzenmilch","theme_name":"ace/theme/katzenmilch"}],
     application : application,
   };
   for(var i=0; i<3; i++){
@@ -1660,8 +1743,21 @@
 
   Handlebars.registerHelper('i18n', i18n);
 
+  Handlebars.registerHelper('noaction', function(){return "javascript:void(0)"});
+
+  Handlebars.registerHelper('m-action-n-close', function(action){
+    action = typeof(action) == "string" ? action : "";
+    return 'data-eb-click="top_menu_controller.action_and_close(function(){'+action+'})"'
+  });
+
   Handlebars.registerHelper('isNull', function(val){
     return val == null;
+  });
+
+  Handlebars.registerHelper('concat', function(){
+    var params = Array.from(arguments);
+    params = params.slice(0, params.length - 1);
+    return params.join('');
   });
 
   Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
@@ -1715,7 +1811,8 @@
   var user_preferences;
   var editor_controller;
   var top_menu_controller;
-  var menu_controller;
+  var menu_controller = new MenuController("menu");
+
 
   oauth_controller.add_to_queue(function(){
     user_preferences = new Preferences(
@@ -1762,7 +1859,7 @@
         editor_controller.flash.sticky_success("Version 5 has just been released. <a target='_blank' href='http://bit.ly/afn-community'>Report any bug on the community by clicking here.</a>");
 
         new EditorRouter(editor_controller)
-        top_menu_controller = new TopMenuController("menu", { 'flash' : editor_controller.flash, 'editor':editor_controller });
+        top_menu_controller = new TopMenuController("menu", { 'flash' : editor_controller.flash, 'editor':editor_controller, 'menu':menu_controller });
         editor_controller.top_menu = top_menu_controller;
 
         // check for browser compat
@@ -1772,8 +1869,6 @@
       }
     )
   })
-
-  menu_controller = new MenuController("menu");
 
 //editor_controller.initialize_html() 
 
